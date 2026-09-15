@@ -1,0 +1,336 @@
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - Submit Bill</title>
+</head>
+
+<body style="margin:0; background:#f4f6f9; color:#333; font-family:Arial, Helvetica, sans-serif;">
+
+<div style="display:flex; min-height:100vh;">
+
+    <!-- Sidebar -->
+    <aside style="width:250px; background:#1e293b; color:white; padding:20px 0; position:fixed; left:0; top:0; bottom:0;">
+
+        <div style="padding:0 25px 25px; font-size:22px; font-weight:bold; border-bottom:1px solid #334155;">
+            Admin Panel
+        </div>
+
+        <div style="margin-top:20px;">
+
+            <div style="padding:12px 25px; font-size:12px; color:#94a3b8; text-transform:uppercase; letter-spacing:1px;">
+                Main Menu
+            </div>
+
+            <a href="#" style="display:block; padding:13px 25px; color:#cbd5e1; text-decoration:none; font-size:15px;">
+                Dashboard
+            </a>
+
+            <a href="#" style="display:block; padding:13px 25px; color:#cbd5e1; text-decoration:none; font-size:15px;">
+                Customers
+            </a>
+
+            <a href="#" style="display:block; padding:13px 25px; color:#cbd5e1; text-decoration:none; font-size:15px;">
+                Products
+            </a>
+
+            <a href="#" style="display:block; padding:13px 25px; color:#cbd5e1; text-decoration:none; font-size:15px;">
+                Orders
+            </a>
+
+            <!-- Active Menu -->
+            <a href="#" style="display:block; padding:13px 25px; background:#2563eb; color:white; text-decoration:none; font-size:15px;">
+                Submit Bill
+            </a>
+
+            <a href="#" style="display:block; padding:13px 25px; color:#cbd5e1; text-decoration:none; font-size:15px;">
+                Reports
+            </a>
+
+            <div style="padding:12px 25px; font-size:12px; color:#94a3b8; text-transform:uppercase; letter-spacing:1px;">
+                Settings
+            </div>
+
+            <a href="#" style="display:block; padding:13px 25px; color:#cbd5e1; text-decoration:none; font-size:15px;">
+                Users
+            </a>
+
+            <a href="#" style="display:block; padding:13px 25px; color:#cbd5e1; text-decoration:none; font-size:15px;">
+                Settings
+            </a>
+
+            <a href="#" style="display:block; padding:13px 25px; color:#cbd5e1; text-decoration:none; font-size:15px;">
+                Logout
+            </a>
+
+        </div>
+
+    </aside>
+
+
+    <!-- Main Content -->
+    <main style="margin-left:250px; width:calc(100% - 250px); padding:30px;">
+
+        <!-- Page Header -->
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:25px;">
+
+            <div>
+                <h1 style="font-size:26px; color:#1e293b; margin:0 0 5px;">
+                    Submit Bill
+                </h1>
+
+                <p style="color:#64748b; font-size:14px; margin:0;">
+                    Submit a customer bill with bill information and picture
+                </p>
+            </div>
+
+        </div>
+
+
+        <!-- Bill Form -->
+        <div style="background:white; border-radius:8px; border:1px solid #e2e8f0; overflow:hidden;">
+
+            <div style="padding:18px 20px; border-bottom:1px solid #e2e8f0;">
+
+                <h3 style="font-size:18px; color:#1e293b; margin:0;">
+                    Bill Information
+                </h3>
+
+            </div>
+
+
+            <form method="POST" action="{% url 'customer_bill' %}" enctype="multipart/form-data">
+
+                {% csrf_token %}
+
+                <div style="padding:25px 20px;">
+
+                    <!-- Customer -->
+                    <div style="margin-bottom:20px;">
+
+                        <label style="display:block; font-size:13px; color:#475569; font-weight:600; margin-bottom:8px;">
+                            Customer
+                        </label>
+
+                        <select
+                            name="customer"
+                            required
+                            style="width:100%; box-sizing:border-box; padding:11px 12px; border:1px solid #cbd5e1; border-radius:5px; outline:none; font-size:14px; color:#334155; background:white;"
+                        >
+
+                            <option value="">Select Customer</option>
+
+                                {% for data in customers %}
+                                <option value="{{ data.id }}">
+                                    {{data.name}}
+                                </option>
+                            {% endfor %}
+
+                        </select>
+
+                    </div>
+
+
+                    <!-- Bill ID + Amount -->
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px; margin-bottom:20px;">
+
+                        <!-- Bill ID -->
+                        <div>
+
+                            <label style="display:block; font-size:13px; color:#475569; font-weight:600; margin-bottom:8px;">
+                                Bill ID
+                            </label>
+
+                            <input
+                                type="text"
+                                name="bill_id"
+                                placeholder="Enter bill ID"
+                                required
+                                style="width:100%; box-sizing:border-box; padding:11px 12px; border:1px solid #cbd5e1; border-radius:5px; outline:none; font-size:14px;"
+                            >
+
+                        </div>
+
+
+                        <!-- Bill Amount -->
+                        <div>
+
+                            <label style="display:block; font-size:13px; color:#475569; font-weight:600; margin-bottom:8px;">
+                                Bill Amount
+                            </label>
+
+                            <input
+                                type="number"
+                                name="bill_amount"
+                                placeholder="Enter bill amount"
+                                step="0.01"
+                                min="0"
+                                required
+                                style="width:100%; box-sizing:border-box; padding:11px 12px; border:1px solid #cbd5e1; border-radius:5px; outline:none; font-size:14px;"
+                            >
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- Bill Picture -->
+                    <div style="margin-bottom:25px;">
+
+                        <label style="display:block; font-size:13px; color:#475569; font-weight:600; margin-bottom:8px;">
+                            Bill Picture
+                        </label>
+
+                        <input
+                            type="file"
+                            name="bill_picture"
+                            accept="image/*"
+                            required
+                            style="width:100%; box-sizing:border-box; padding:10px; border:1px solid #cbd5e1; border-radius:5px; background:#fff; font-size:14px;"
+                        >
+
+                        <p style="margin:7px 0 0; color:#94a3b8; font-size:12px;">
+                            Upload a clear image of the customer bill.
+                        </p>
+
+                    </div>
+
+
+                    <!-- Submit Button -->
+                    <div style="text-align:right;">
+
+                        <button
+                            type="submit"
+                            style="background:#2563eb; color:white; border:0; padding:11px 20px; border-radius:6px; font-size:14px; font-weight:600; cursor:pointer;"
+                        >
+                            Submit Bill
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </form>
+
+        </div>
+
+
+        <!-- Recent Bills -->
+        <div style="background:white; border-radius:8px; border:1px solid #e2e8f0; overflow:hidden; margin-top:25px;">
+
+            <div style="padding:18px 20px; border-bottom:1px solid #e2e8f0;">
+
+                <h3 style="font-size:18px; color:#1e293b; margin:0;">
+                    Recent Submitted Bills
+                </h3>
+
+            </div>
+
+
+            <div style="width:100%; overflow-x:auto;">
+
+                <table style="width:100%; border-collapse:collapse; min-width:800px;">
+
+                    <thead>
+
+                        <tr>
+
+                            <th style="background:#f8fafc; color:#475569; font-size:13px; text-align:left; padding:14px 16px; border-bottom:1px solid #e2e8f0;">
+                                ID
+                            </th>
+
+                            <th style="background:#f8fafc; color:#475569; font-size:13px; text-align:left; padding:14px 16px; border-bottom:1px solid #e2e8f0;">
+                                Customer
+                            </th>
+                                                        <th style="background:#f8fafc; color:#475569; font-size:13px; text-align:left; padding:14px 16px; border-bottom:1px solid #e2e8f0;">
+                                email 
+                            </th>
+
+                            <th style="background:#f8fafc; color:#475569; font-size:13px; text-align:left; padding:14px 16px; border-bottom:1px solid #e2e8f0;">
+                                Bill ID
+                            </th>
+
+                            <th style="background:#f8fafc; color:#475569; font-size:13px; text-align:left; padding:14px 16px; border-bottom:1px solid #e2e8f0;">
+                                Amount
+                            </th>
+
+                            <th style="background:#f8fafc; color:#475569; font-size:13px; text-align:left; padding:14px 16px; border-bottom:1px solid #e2e8f0;">
+                                Bill Picture
+                            </th>
+
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody>
+
+                        {% for bill in bill %}
+
+                        <tr>
+
+                            <td style="padding:14px 16px; border-bottom:1px solid #e2e8f0; font-size:14px; color:#475569;">
+                                {{ forloop.counter }}
+                            </td>
+
+                            <td style="padding:14px 16px; border-bottom:1px solid #e2e8f0; font-size:14px; color:#1e293b; font-weight:600;">
+                                {{ bill.customer_id.name }}
+                            </td>
+
+                            <td style="padding:14px 16px; border-bottom:1px solid #e2e8f0; font-size:14px; color:#1e293b; font-weight:600;">
+                                {{ bill.customer_id.email }} - {{bill.bill_code}}
+                            </td>
+
+                            <td style="padding:14px 16px; border-bottom:1px solid #e2e8f0; font-size:14px; color:#475569;">
+                                {{ bill.bill_id }}
+                            </td>
+
+                            <td style="padding:14px 16px; border-bottom:1px solid #e2e8f0; font-size:14px; color:#475569;">
+                                {{ bill.bill_amount }}
+                            </td>
+
+                            <td style="padding:14px 16px; border-bottom:1px solid #e2e8f0; font-size:14px;">
+
+                                <img
+                                    src="{{ bill.bill_picture.url }}"
+                                    style="padding:7px 11px; border-radius:5px; text-decoration:none; font-size:12px; font-weight:600; background:#dbeafe; color:#1d4ed8;"
+                                >
+                                    <!-- View Bill
+                                </a> -->
+
+                            </td>
+
+                        </tr>
+
+                        {% empty %}
+
+                        <tr>
+
+                            <td
+                                colspan="5"
+                                style="padding:25px; text-align:center; color:#94a3b8; font-size:14px;"
+                            >
+                                No bills submitted yet.
+                            </td>
+
+                        </tr>
+
+                        {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+    </main>
+
+</div>
+
+</body>
+</html>
+```
