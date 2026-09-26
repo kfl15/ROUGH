@@ -21,9 +21,9 @@ DRF helps Django give JSON data:
 In this project, DRF gives us:
 
 - Serializer
-  - Converts model data to JSON and JSON back to model data.
-- ViewSet
-  - Gives API actions like list, create, retrieve, update, and delete.
+  - Converts model data to JSON and if JSON formated data comes, it actually validates that.
+- ViewSet (The main controler)
+  - Gives API actions like list, create, retrieve, update, and delete. Uses serializer to validate data, uses router to converts action to api urls
 - Router
   - Creates API URLs automatically from the ViewSet.
 - Browsable API page

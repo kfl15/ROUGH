@@ -108,9 +108,7 @@
         <h2>Welcome Back</h2>
         <p>Login to your account</p>
 
-        <form method="POST" action="{% url 'login' %}">
-
-            {% csrf_token %}
+        <form id="login-form">
 
             <div class="form-group">
                 <label for="email">Email</label>
@@ -146,6 +144,47 @@
         </div>
 
     </div>
+
+    <script>
+        const loginForm = document.getElementById('login-form');
+
+        loginForm.addEventListener('submit', async function (event) {
+            // Stop the normal HTML form submission.
+            event.preventDefault();
+
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            // Send the login information to our JWT API as JSON.
+            const response = await fetch('/account/api/login/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ email, password })
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                // Local storage is simple for this classroom demo.
+                localStorage.setItem('access_token', data.access);
+                localStorage.setItem('refresh_token', data.refresh);
+
+                // Use the access token to call our protected profile API.
+                const profileResponse = await fetch('/account/api/profile/', {
+                    headers: {
+                        'Authorization': `Bearer ${data.access}`
+                    }
+                });
+                const profile = await profileResponse.json();
+
+                alert(`Login successful. Welcome ${profile.username}.`);
+            } else {
+                alert('Invalid email or password.');
+            }
+        });
+    </script>
 
 </body>
 </html>

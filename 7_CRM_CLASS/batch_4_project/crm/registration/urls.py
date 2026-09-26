@@ -17,11 +17,12 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
+from rest_framework_simplejwt.views import TokenRefreshView
 
 from . import views as v
 
 # Router creates API URLs automatically for the ViewSet.
-router = DefaultRouter()
+router = DefaultRouter() # an empty automatic url maker
 
 # This creates list/create/detail/update/delete URLs for registrations.
 router.register('registrations', v.RegistrationViewSet)
@@ -34,5 +35,12 @@ urlpatterns = [
     path('customer/delete/<int:cid>', v.delete_customer,name='customer_delete'),
     path('customer/bill', v.show_customer_bill,name='customer_bill'),
     path('api/', include(router.urls)),
-
+    path('api/login/', v.LoginAPIView.as_view(), name='api_login'),
+    path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    path('api/profile/', v.ProfileAPIView.as_view(), name='api_profile'),
 ]
+# /api/login/ → checks credentials and returns tokens.
+# /api/token/refresh/ → accepts a refresh token and returns a new access token.
+# .as_view() makes the class-based view usable by Django URLs.
+# without thise paths, the login & refresh APIs can not be accessed.
+

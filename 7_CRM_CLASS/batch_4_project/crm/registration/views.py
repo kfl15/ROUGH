@@ -6,10 +6,16 @@ from .models import*
 from django.core.mail import send_mail
 import secrets
 
-from rest_framework import viewsets
-from .serializers import RegistrationSerializer
+from rest_framework import viewsets # controls CRUD(Create, Read, Update, Delete) actions
+# from .serializers import RegistrationSerializer
+from .serializers import RegistrationSerializer, LoginSerializer
 
-# Create your views here.
+from rest_framework.views import APIView # recives API request
+from rest_framework.response import Response # returns JSON
+from rest_framework.permissions import AllowAny, IsAuthenticated # allows login without already having a token
+from rest_framework.permissions import IsAuthenticated # requires a valid access token.
+
+
 
 def register(req):
     if req.method =='GET':
@@ -123,8 +129,53 @@ def login(req):
 
         return render(req,'login.html')
 
+
+
+class LoginAPIView(APIView):
+    permission_classes = [AllowAny]
+#     APIView creates an API controller.
+#     AllowAny lets users attempt login without already having a token.
+
+    def post(self, request):
+        serializer = LoginSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        # Send the incoming email and password from request.data 
+        # to LoginSerializer. and then validates with is_valid()
+
+
+        return Response(serializer.validated_data)
+# POST data
+# → LoginSerializer
+# → validate email/password
+# → return access + refresh tokens
+
+
+
+class ProfileAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+    # This API is protected. 
+    # Only a request containing a valid access token can enter.
+
+    def get(self, request):
+        return Response({
+            'id': request.user.id,
+            'username': request.user.username,
+            'email': request.user.email,
+        })
+# Valid access token
+# → Django identifies the user
+# → request.user contains that user
+# → API returns basic profile data
+
+
 class RegistrationViewSet(viewsets.ModelViewSet):
     queryset = Registration.objects.all()
     serializer_class = RegistrationSerializer
+    permission_classes = [IsAuthenticated]
+
+# queryset → provides Registration records
+# serializer_class → converts or validates those records/data
+# ModelViewSet → connects and controls both automatically
+# IsAuthenticated -> Registration list, create, update, and delete now require a valid JWT access token.
 
 

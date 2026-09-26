@@ -45,7 +45,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'registration',
-    'rest_framework',
+    'rest_framework', 
 ]
 
 MIDDLEWARE = [
@@ -160,3 +160,16 @@ DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 #         'BACKEND': 'django.core.mail.backends.console.EmailBackend',
 #     },
 # }
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ),
+}
+# This tells DRF to read and verify JWT access tokens sent 
+# with API requests.'
+# the default system is JWTAuthentication,
+#  so DRF checks JWT tokens automatically.
+
+
+

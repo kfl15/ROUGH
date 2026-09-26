@@ -1,0 +1,237 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Class 2 - DRF Registration API</title>
+  <style>
+    @page { size: 13.333in 7.5in; margin: 0; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: #dce3e8; color: #172026; font-family: "Liberation Sans", Arial, sans-serif; }
+    .slide { position: relative; width: 13.333in; height: 7.5in; padding: .58in .72in; overflow: hidden; page-break-after: always; background: #f7f8f5; }
+    .slide:last-child { page-break-after: auto; }
+    .slide::before { content: ""; position: absolute; left: 0; top: 0; width: .16in; height: 100%; background: #147d83; }
+    .num { position: absolute; right: .45in; bottom: .28in; color: #66727a; font-size: 16px; }
+    .tag { color: #0c686d; font-size: 19px; font-weight: 700; text-transform: uppercase; }
+    h1 { margin: .15in 0 .2in; font-size: 46px; line-height: 1.12; }
+    h2 { margin: .1in 0 .3in; font-size: 34px; line-height: 1.15; }
+    h3 { margin: 0 0 .12in; font-size: 23px; }
+    p, li { font-size: 22px; line-height: 1.33; }
+    ul { margin: .1in 0; padding-left: .32in; }
+    li { margin: .1in 0; }
+    .lead { max-width: 10.7in; font-size: 27px; }
+    .accent { color: #b43c24; font-weight: 700; }
+    .muted { color: #5a6870; }
+    .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: .3in; }
+    .grid4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: .16in; }
+    .box { border: 2px solid #c7d0d5; border-top: 7px solid #147d83; padding: .2in; background: #fff; min-height: 1.25in; }
+    .box.orange { border-top-color: #e75b3b; }
+    .box.yellow { border-top-color: #e7b740; }
+    .flow { display: flex; align-items: center; justify-content: center; gap: .1in; margin-top: .34in; }
+    .step { min-width: 1.65in; padding: .22in .12in; background: #fff; border: 2px solid #147d83; text-align: center; font-size: 19px; font-weight: 700; }
+    .arrow { font-size: 29px; color: #e75b3b; }
+    code, pre { font-family: "DejaVu Sans Mono", monospace; }
+    pre { margin: .14in 0; padding: .18in .22in; background: #172026; color: #eef4f2; font-size: 18px; line-height: 1.35; white-space: pre-wrap; }
+    table { width: 100%; border-collapse: collapse; background: #fff; }
+    th, td { padding: .12in .16in; border: 1px solid #bdc8cd; text-align: left; font-size: 19px; }
+    th { background: #147d83; color: #fff; }
+    .title { display: flex; flex-direction: column; justify-content: center; }
+    .title h1 { font-size: 55px; max-width: 9.6in; }
+    .title .band { position: absolute; right: 0; top: 0; width: 2.2in; height: 100%; background: #e75b3b; }
+    .title .band::after { content: "DRF"; position: absolute; top: 2.65in; left: .3in; color: #fff; font-size: 56px; font-weight: 700; transform: rotate(90deg); }
+    .path { color: #ffd36b; }
+    @media screen { .slide { margin: 22px auto; box-shadow: 0 6px 24px #0003; } }
+    @media print { body { background: transparent; } }
+  </style>
+</head>
+<body>
+  <section class="slide title">
+    <div class="tag">Class 2</div>
+    <h1>Build the Registration API with DRF</h1>
+    <p class="lead">Connect every idea to our CRM project.</p>
+    <div class="band"></div><div class="num">1</div>
+  </section>
+
+  <section class="slide">
+    <div class="tag">Point 1</div>
+    <h2>What is DRF?</h2>
+    <p class="lead"><strong>Django REST Framework</strong> is a Django package that helps us build APIs.</p>
+    <div class="grid4">
+      <div class="box"><h3>Serializer</h3><p>Converts and validates.</p></div>
+      <div class="box orange"><h3>ViewSet</h3><p>Controls API actions.</p></div>
+      <div class="box yellow"><h3>Router</h3><p>Creates API URLs.</p></div>
+      <div class="box"><h3>Browsable API</h3><p>Tests in browser.</p></div>
+    </div>
+    <pre><span class="path">crm/crm/settings.py</span> -> 'rest_framework'</pre>
+    <div class="num">2</div>
+  </section>
+
+  <section class="slide">
+    <div class="tag">Code Connection</div>
+    <h2>Where is the DRF code?</h2>
+    <table>
+      <tr><th>Concept</th><th>Project file</th></tr>
+      <tr><td>Activate DRF</td><td>crm/crm/settings.py</td></tr>
+      <tr><td>Serializer</td><td>crm/registration/serializers.py</td></tr>
+      <tr><td>ViewSet</td><td>crm/registration/views.py</td></tr>
+      <tr><td>Router</td><td>crm/registration/urls.py</td></tr>
+    </table>
+    <p class="muted">Open each file while explaining the matching concept.</p>
+    <div class="num">3</div>
+  </section>
+
+  <section class="slide">
+    <div class="tag">Point 2</div>
+    <h2>What is CRUD?</h2>
+    <div class="grid4">
+      <div class="box"><h3>Create</h3><p>Add a registration.</p></div>
+      <div class="box orange"><h3>Read</h3><p>See registrations.</p></div>
+      <div class="box yellow"><h3>Update</h3><p>Change a registration.</p></div>
+      <div class="box"><h3>Delete</h3><p>Remove a registration.</p></div>
+    </div>
+    <p class="lead">CRUD means the four basic operations we perform on database data.</p>
+    <div class="num">4</div>
+  </section>
+
+  <section class="slide">
+    <div class="tag">Point 3</div>
+    <h2>What is an API?</h2>
+    <p class="lead">An API lets another software request and use our Registration data.</p>
+    <div class="flow">
+      <div class="step">Client</div><div class="arrow">&#8594;</div>
+      <div class="step">Registration API</div><div class="arrow">&#8594;</div>
+      <div class="step">PostgreSQL</div>
+    </div>
+    <pre>/account/api/registrations/</pre>
+    <div class="num">5</div>
+  </section>
+
+  <section class="slide">
+    <div class="tag">Point 4</div>
+    <h2>What is JSON?</h2>
+    <p>JSON is the structured data format our API sends and receives.</p>
+    <pre>{
+  "id": 5,
+  "name": "Student",
+  "email": "student@example.com",
+  "date_of_birth": "2001-02-03"
+}</pre>
+    <p class="muted">It looks similar to a Python dictionary, but JSON is a data exchange format.</p>
+    <div class="num">6</div>
+  </section>
+
+  <section class="slide">
+    <div class="tag">Point 5</div>
+    <h2>What is a REST API?</h2>
+    <p>It uses HTTP methods and predictable URLs to work with data.</p>
+    <pre>GET     /account/api/registrations/     -> Read all
+POST    /account/api/registrations/     -> Create
+GET     /account/api/registrations/5/   -> Read one
+PATCH   /account/api/registrations/5/   -> Update part
+DELETE  /account/api/registrations/5/   -> Delete</pre>
+    <div class="num">7</div>
+  </section>
+
+  <section class="slide">
+    <div class="tag">Point 6</div>
+    <h2>Why use Django REST Framework?</h2>
+    <p class="lead">Django can build APIs manually. DRF gives us ready tools, so we write less repeated code.</p>
+    <div class="flow">
+      <div class="step">Serializer</div><div class="arrow">+</div>
+      <div class="step">ViewSet</div><div class="arrow">+</div>
+      <div class="step">Router</div><div class="arrow">=</div>
+      <div class="step">CRUD API</div>
+    </div>
+    <div class="num">8</div>
+  </section>
+
+  <section class="slide">
+    <div class="tag">Point 7</div>
+    <h2>What changed in our project?</h2>
+    <div class="grid2">
+      <div class="box"><h3>Before</h3><p>HTML form &#8594; Django view &#8594; Model &#8594; PostgreSQL &#8594; HTML page</p></div>
+      <div class="box orange"><h3>After</h3><p>API request &#8594; ViewSet &#8594; Serializer &#8594; Model &#8594; PostgreSQL &#8594; JSON</p></div>
+    </div>
+    <p class="lead">Same database. A new way to send and receive Registration data.</p>
+    <div class="num">9</div>
+  </section>
+
+  <section class="slide">
+    <div class="tag">Point 8</div>
+    <h2>Serializer: converter and validator</h2>
+    <pre>class RegistrationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Registration
+        fields = ['id', 'name', 'email',
+                  'password', 'date_of_birth']</pre>
+    <p><strong>Outgoing:</strong> model object &#8594; JSON-ready data</p>
+    <p><strong>Incoming:</strong> JSON &#8594; validated model-ready data</p>
+    <div class="num">10</div>
+  </section>
+
+  <section class="slide">
+    <div class="tag">Point 9</div>
+    <h2>ViewSet: the API controller</h2>
+    <pre>class RegistrationViewSet(viewsets.ModelViewSet):
+    queryset = Registration.objects.all()
+    serializer_class = RegistrationSerializer</pre>
+    <p><code>queryset</code>: which database data to use.</p>
+    <p><code>serializer_class</code>: how to convert and validate that data.</p>
+    <p class="lead">It controls list, create, retrieve, update, and delete.</p>
+    <div class="num">11</div>
+  </section>
+
+  <section class="slide">
+    <div class="tag">ViewSet Example</div>
+    <h2>What happens during an update?</h2>
+    <div class="flow">
+      <div class="step">PATCH request</div><div class="arrow">&#8594;</div>
+      <div class="step">ViewSet chooses update</div><div class="arrow">&#8594;</div>
+      <div class="step">Serializer validates</div><div class="arrow">&#8594;</div>
+      <div class="step">Model saves</div>
+    </div>
+    <p class="lead">The ViewSet controls the action; the Serializer checks the data.</p>
+    <div class="num">12</div>
+  </section>
+
+  <section class="slide">
+    <div class="tag">Point 10</div>
+    <h2>Router: automatic URL maker</h2>
+    <pre>router = DefaultRouter()
+router.register('registrations', v.RegistrationViewSet)
+
+path('api/', include(router.urls))</pre>
+    <p>This one registration creates list, create, detail, update, and delete URLs.</p>
+    <p class="lead">Router connects URLs to the correct ViewSet actions.</p>
+    <div class="num">13</div>
+  </section>
+
+  <section class="slide">
+    <div class="tag">Point 11</div>
+    <h2>Browsable API: test from the browser</h2>
+    <p>DRF gives us a ready testing page with:</p>
+    <div class="grid4">
+      <div class="box"><h3>GET</h3><p>View data.</p></div>
+      <div class="box orange"><h3>POST</h3><p>Create data.</p></div>
+      <div class="box yellow"><h3>PUT/PATCH</h3><p>Update data.</p></div>
+      <div class="box"><h3>DELETE</h3><p>Delete data.</p></div>
+    </div>
+    <pre>http://127.0.0.1:8001/account/api/registrations/</pre>
+    <div class="num">14</div>
+  </section>
+
+  <section class="slide">
+    <div class="tag">Final Mental Model</div>
+    <h2>Remember this flow</h2>
+    <div class="flow">
+      <div class="step">Router</div><div class="arrow">&#8594;</div>
+      <div class="step">ViewSet</div><div class="arrow">&#8594;</div>
+      <div class="step">Serializer</div><div class="arrow">&#8594;</div>
+      <div class="step">Model + DB</div>
+    </div>
+    <p class="lead"><strong>Model:</strong> database design &nbsp; <strong>Serializer:</strong> converter/checker</p>
+    <p class="lead"><strong>ViewSet:</strong> controller &nbsp; <strong>Router:</strong> URL maker</p>
+    <div class="num">15</div>
+  </section>
+</body>
+</html>

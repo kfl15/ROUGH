@@ -1,0 +1,315 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Class 3 - JWT Authentication</title>
+  <style>
+    @page { size: 13.333in 7.5in; margin: 0; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: #dce3e8; color: #172026; font-family: "Liberation Sans", Arial, sans-serif; }
+    .slide { position: relative; width: 13.333in; height: 7.5in; padding: .56in .72in; overflow: hidden; page-break-after: always; background: #f7f8f5; }
+    .slide:last-child { page-break-after: auto; }
+    .slide::before { content: ""; position: absolute; left: 0; top: 0; width: .16in; height: 100%; background: #e75b3b; }
+    .num { position: absolute; right: .45in; bottom: .25in; color: #66727a; font-size: 16px; }
+    .tag { color: #a63b24; font-size: 18px; font-weight: 700; text-transform: uppercase; }
+    h1 { margin: .13in 0 .2in; font-size: 46px; line-height: 1.12; }
+    h2 { margin: .08in 0 .28in; font-size: 34px; line-height: 1.15; }
+    h3 { margin: 0 0 .1in; font-size: 22px; }
+    p, li { font-size: 21px; line-height: 1.32; }
+    ul { margin: .08in 0; padding-left: .32in; }
+    li { margin: .09in 0; }
+    .lead { max-width: 10.8in; font-size: 27px; }
+    .accent { color: #b43c24; font-weight: 700; }
+    .muted { color: #5a6870; }
+    .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: .3in; }
+    .grid3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: .2in; }
+    .box { border: 2px solid #c7d0d5; border-top: 7px solid #147d83; padding: .2in; background: #fff; min-height: 1.25in; }
+    .box.orange { border-top-color: #e75b3b; }
+    .box.yellow { border-top-color: #e7b740; }
+    .flow { display: flex; align-items: center; justify-content: center; gap: .09in; margin-top: .32in; }
+    .step { min-width: 1.55in; padding: .2in .1in; background: #fff; border: 2px solid #147d83; text-align: center; font-size: 18px; font-weight: 700; }
+    .arrow { font-size: 28px; color: #e75b3b; }
+    code, pre { font-family: "DejaVu Sans Mono", monospace; }
+    pre { margin: .12in 0; padding: .17in .21in; background: #172026; color: #eef4f2; font-size: 17px; line-height: 1.32; white-space: pre-wrap; }
+    table { width: 100%; border-collapse: collapse; background: #fff; }
+    th, td { padding: .11in .15in; border: 1px solid #bdc8cd; text-align: left; font-size: 19px; }
+    th { background: #147d83; color: #fff; }
+    .title { display: flex; flex-direction: column; justify-content: center; }
+    .title h1 { font-size: 55px; max-width: 9.6in; }
+    .title .band { position: absolute; right: 0; top: 0; width: 2.2in; height: 100%; background: #147d83; }
+    .title .band::after { content: "JWT"; position: absolute; top: 2.6in; left: .28in; color: #fff; font-size: 56px; font-weight: 700; transform: rotate(90deg); }
+    .file { color: #ffd36b; }
+    @media screen { .slide { margin: 22px auto; box-shadow: 0 6px 24px #0003; } }
+    @media print { body { background: transparent; } }
+  </style>
+</head>
+<body>
+  <section class="slide title">
+    <div class="tag">Class 3</div>
+    <h1>JWT Login in Our Django CRM</h1>
+    <p class="lead">Login, tokens, protected APIs, and the existing HTML page.</p>
+    <div class="band"></div><div class="num">1</div>
+  </section>
+
+  <section class="slide">
+    <div class="tag">Today</div>
+    <h2>What will we build?</h2>
+    <div class="flow">
+      <div class="step">Login form</div><div class="arrow">&#8594;</div>
+      <div class="step">Login API</div><div class="arrow">&#8594;</div>
+      <div class="step">JWT tokens</div><div class="arrow">&#8594;</div>
+      <div class="step">Protected API</div>
+    </div>
+    <p class="lead">A user logs in once, then proves identity using an access token.</p>
+    <div class="num">2</div>
+  </section>
+
+  <section class="slide">
+    <div class="tag">Before JWT</div>
+    <h2>What did our login page do?</h2>
+    <pre>def login(req):
+    if req.method == "GET":
+        return render(req, 'login.html')</pre>
+    <p>It only displayed the HTML page.</p>
+    <p class="lead">It did not check credentials, identify a user, or protect an API.</p>
+    <div class="num">3</div>
+  </section>
+
+  <section class="slide">
+    <div class="tag">Meaning</div>
+    <h2>What is JWT?</h2>
+    <p class="lead"><strong>JWT = JSON Web Token</strong></p>
+    <p>A JWT is a signed digital identity card returned after successful login.</p>
+    <div class="grid3">
+      <div class="box"><h3>Contains</h3><p>User identity and expiry information.</p></div>
+      <div class="box orange"><h3>Signed</h3><p>Changes to it can be detected.</p></div>
+      <div class="box yellow"><h3>Not encrypted</h3><p>Never store passwords inside it.</p></div>
+    </div>
+    <div class="num">4</div>
+  </section>
+
+  <section class="slide">
+    <div class="tag">Architecture</div>
+    <h2>JWT login flow</h2>
+    <div class="flow">
+      <div class="step">Email + password</div><div class="arrow">&#8594;</div>
+      <div class="step">Login API checks</div><div class="arrow">&#8594;</div>
+      <div class="step">Tokens returned</div><div class="arrow">&#8594;</div>
+      <div class="step">Access protected API</div>
+    </div>
+    <p class="lead">The password is used for login. The access token is used for later API requests.</p>
+    <div class="num">5</div>
+  </section>
+
+  <section class="slide">
+    <div class="tag">Two Tokens</div>
+    <h2>Access token and refresh token</h2>
+    <div class="grid2">
+      <div class="box"><h3>Access token</h3><p>Short life. Sent to protected APIs.</p></div>
+      <div class="box orange"><h3>Refresh token</h3><p>Longer life. Creates a new access token.</p></div>
+    </div>
+    <div class="flow">
+      <div class="step">Access expires</div><div class="arrow">&#8594;</div>
+      <div class="step">Send refresh</div><div class="arrow">&#8594;</div>
+      <div class="step">New access token</div>
+    </div>
+    <div class="num">6</div>
+  </section>
+
+  <section class="slide">
+    <div class="tag">Bearer</div>
+    <h2>How is the access token sent?</h2>
+    <pre>Authorization: Bearer &lt;access_token&gt;</pre>
+    <p><strong>Bearer</strong> means: “I am carrying this access token.”</p>
+    <p class="lead">Bearer is not an API. It is the authentication header format.</p>
+    <div class="num">7</div>
+  </section>
+
+  <section class="slide">
+    <div class="tag">Step 1</div>
+    <h2>Install JWT support</h2>
+    <pre>pip install djangorestframework-simplejwt</pre>
+    <p>Add to <code>requirements.txt</code>:</p>
+    <pre>djangorestframework-simplejwt==5.5.1</pre>
+    <p class="muted">SimpleJWT creates and verifies JWTs for Django REST Framework.</p>
+    <div class="num">8</div>
+  </section>
+
+  <section class="slide">
+    <div class="tag">Step 2</div>
+    <h2>Create a Django login user</h2>
+    <pre>python manage.py createsuperuser</pre>
+    <div class="grid2">
+      <div class="box"><h3>Django User</h3><p>Authentication account with a hashed password.</p></div>
+      <div class="box orange"><h3>Registration</h3><p>Our CRM customer information model.</p></div>
+    </div>
+    <p class="lead">We use Django User for login because SimpleJWT is designed for it.</p>
+    <div class="num">9</div>
+  </section>
+
+  <section class="slide">
+    <div class="tag">Step 3</div>
+    <h2>Tell DRF to recognize JWT</h2>
+    <pre><span class="file">crm/crm/settings.py</span>
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ),
+}</pre>
+    <p>Now DRF can verify <code>Bearer &lt;access_token&gt;</code>.</p>
+    <div class="num">10</div>
+  </section>
+
+  <section class="slide">
+    <div class="tag">Step 4</div>
+    <h2>LoginSerializer: receive login data</h2>
+    <pre><span class="file">crm/registration/serializers.py</span>
+
+class LoginSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+    password = serializers.CharField(write_only=True)</pre>
+    <p><code>write_only=True</code> means the password is accepted as input but not returned.</p>
+    <div class="num">11</div>
+  </section>
+
+  <section class="slide">
+    <div class="tag">Step 4 Continued</div>
+    <h2>Check credentials and create tokens</h2>
+    <pre>user = User.objects.filter(email=data['email']).first()
+
+user = authenticate(
+    username=user.username,
+    password=data['password']
+)
+
+refresh = RefreshToken.for_user(user)
+
+return {
+    'refresh': str(refresh),
+    'access': str(refresh.access_token),
+}</pre>
+    <div class="num">12</div>
+  </section>
+
+  <section class="slide">
+    <div class="tag">Step 5</div>
+    <h2>LoginAPIView: control the request</h2>
+    <pre><span class="file">crm/registration/views.py</span>
+
+class LoginAPIView(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        serializer = LoginSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        return Response(serializer.validated_data)</pre>
+    <p><code>AllowAny</code>: users can attempt login before having a token.</p>
+    <div class="num">13</div>
+  </section>
+
+  <section class="slide">
+    <div class="tag">Step 6</div>
+    <h2>Add login and refresh URLs</h2>
+    <pre><span class="file">crm/registration/urls.py</span>
+
+path('api/login/',
+     v.LoginAPIView.as_view(),
+     name='api_login'),
+
+path('api/token/refresh/',
+     TokenRefreshView.as_view(),
+     name='token_refresh'),</pre>
+    <p>One URL logs in; the other renews an access token.</p>
+    <div class="num">14</div>
+  </section>
+
+  <section class="slide">
+    <div class="tag">Step 7</div>
+    <h2>Test the login API</h2>
+    <pre>POST /account/api/login/
+
+{
+  "email": "teacher@example.com",
+  "password": "demo-password"
+}</pre>
+    <p>Successful response:</p>
+    <pre>{ "refresh": "...", "access": "..." }</pre>
+    <div class="num">15</div>
+  </section>
+
+  <section class="slide">
+    <div class="tag">Step 8</div>
+    <h2>Create a protected Profile API</h2>
+    <pre>class ProfileAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        return Response({
+            'id': request.user.id,
+            'username': request.user.username,
+            'email': request.user.email,
+        })</pre>
+    <p><code>request.user</code> is identified from the valid access token.</p>
+    <div class="num">16</div>
+  </section>
+
+  <section class="slide">
+    <div class="tag">Proof</div>
+    <h2>Test protection both ways</h2>
+    <table>
+      <tr><th>Request</th><th>Result</th><th>Meaning</th></tr>
+      <tr><td>No token</td><td>401 Unauthorized</td><td>API blocks the request.</td></tr>
+      <tr><td>Valid Bearer token</td><td>200 OK</td><td>API identifies the user.</td></tr>
+      <tr><td>Expired/invalid token</td><td>401 Unauthorized</td><td>Token is rejected.</td></tr>
+    </table>
+    <pre>GET /account/api/profile/</pre>
+    <div class="num">17</div>
+  </section>
+
+  <section class="slide">
+    <div class="tag">Step 9</div>
+    <h2>Protect Registration CRUD</h2>
+    <pre>class RegistrationViewSet(viewsets.ModelViewSet):
+    queryset = Registration.objects.all()
+    serializer_class = RegistrationSerializer
+    permission_classes = [IsAuthenticated]</pre>
+    <p class="lead">Now every Registration CRUD request needs a valid access token.</p>
+    <div class="num">18</div>
+  </section>
+
+  <section class="slide">
+    <div class="tag">Step 10</div>
+    <h2>Connect the existing login page</h2>
+    <pre>const response = await fetch('/account/api/login/', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email, password })
+});
+
+localStorage.setItem('access_token', data.access);
+localStorage.setItem('refresh_token', data.refresh);</pre>
+    <p class="muted">Local storage is simple for this classroom demo, not the safest production design.</p>
+    <div class="num">19</div>
+  </section>
+
+  <section class="slide">
+    <div class="tag">Browser Flow</div>
+    <h2>Use the token after login</h2>
+    <pre>fetch('/account/api/profile/', {
+    headers: {
+        'Authorization': `Bearer ${data.access}`
+    }
+});</pre>
+    <div class="flow">
+      <div class="step">Form login</div><div class="arrow">&#8594;</div>
+      <div class="step">Store tokens</div><div class="arrow">&#8594;</div>
+      <div class="step">Call profile</div><div class="arrow">&#8594;</div>
+      <div class="step">Welcome user</div>
+    </div>
+    <div class="num">20</div>
+  </section>
+
+</body>
+</html>
