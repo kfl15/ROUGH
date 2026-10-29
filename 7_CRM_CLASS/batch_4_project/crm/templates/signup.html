@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Create Account</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #f4f7fb;
+            padding: 30px;
+        }
+
+        .signup-container {
+            width: 100%;
+            max-width: 1050px;
+            min-height: 650px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            background: #ffffff;
+            border-radius: 24px;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.10);
+        }
+
+        /* =========================
+           LEFT SIDE
+        ========================== */
+
+        .left-section {
+            position: relative;
+            padding: 55px;
+            display: flex;
+            align-items: center;
+            background: linear-gradient(
+                145deg,
+                #2563eb,
+                #4f46e5,
+                #7c3aed
+            );
+            color: white;
+            overflow: hidden;
+        }
+
+        .left-section::before {
+            content: "";
+            position: absolute;
+            width: 320px;
+            height: 320px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.08);
+            top: -130px;
+            right: -100px;
+        }
+
+        .left-section::after {
+            content: "";
+            position: absolute;
+            width: 250px;
+            height: 250px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.07);
+            bottom: -120px;
+            left: -100px;
+        }
+
+        .left-content {
+            position: relative;
+            z-index: 2;
+        }
+
+        .logo {
+            position: absolute;
+            top: 35px;
+            left: 50px;
+            font-size: 22px;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 8px 15px;
+            border-radius: 30px;
+            background: rgba(255, 255, 255, 0.14);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            font-size: 13px;
+            margin-bottom: 22px;
+        }
+
+        .left-content h1 {
+            font-size: 43px;
+            line-height: 1.15;
+            margin-bottom: 20px;
+        }
+
+        .left-content p {
+            font-size: 15px;
+            line-height: 1.8;
+            color: rgba(255, 255, 255, 0.85);
+            max-width: 430px;
+        }
+
+        .features {
+            margin-top: 35px;
+        }
+
+        .feature {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 18px;
+            font-size: 14px;
+        }
+
+        .feature-icon {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255, 255, 255, 0.15);
+            font-size: 13px;
+        }
+
+
+        /* =========================
+           RIGHT SIDE
+        ========================== */
+
+        .right-section {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 55px 60px;
+        }
+
+        .form-container {
+            width: 100%;
+            max-width: 410px;
+        }
+
+        .form-header {
+            margin-bottom: 30px;
+        }
+
+        .form-header h2 {
+            font-size: 30px;
+            color: #111827;
+            margin-bottom: 8px;
+        }
+
+        .form-header p {
+            color: #6b7280;
+            font-size: 14px;
+        }
+
+        .form-header a {
+            color: #4f46e5;
+            font-weight: 600;
+            text-decoration: none;
+        }
+
+
+        /* =========================
+           FORM
+        ========================== */
+
+        .form-group {
+            margin-bottom: 18px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            color: #374151;
+        }
+
+        .input-box {
+            position: relative;
+        }
+
+        .input-icon {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #9ca3af;
+            font-size: 16px;
+        }
+
+        .form-control {
+            width: 100%;
+            height: 50px;
+            border: 1px solid #e5e7eb;
+            border-radius: 10px;
+            background: #f9fafb;
+            padding: 0 15px 0 43px;
+            font-size: 14px;
+            outline: none;
+            transition: all 0.25s ease;
+        }
+
+        .form-control:focus {
+            border-color: #6366f1;
+            background: #ffffff;
+            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.10);
+        }
+
+        .password-note {
+            margin-top: 7px;
+            color: #9ca3af;
+            font-size: 12px;
+        }
+
+
+        /* =========================
+           TERMS
+        ========================== */
+
+        .terms {
+            display: flex;
+            align-items: flex-start;
+            gap: 9px;
+            margin: 20px 0;
+            color: #6b7280;
+            font-size: 13px;
+            line-height: 1.5;
+        }
+
+        .terms input {
+            margin-top: 3px;
+            accent-color: #4f46e5;
+        }
+
+        .terms a {
+            color: #4f46e5;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+
+        /* =========================
+           BUTTON
+        ========================== */
+
+        .signup-btn {
+            width: 100%;
+            height: 52px;
+            border: none;
+            border-radius: 10px;
+            background: linear-gradient(
+                135deg,
+                #2563eb,
+                #4f46e5
+            );
+            color: #ffffff;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            box-shadow: 0 10px 25px rgba(79, 70, 229, 0.20);
+        }
+
+        .signup-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 30px rgba(79, 70, 229, 0.28);
+        }
+
+
+        /* =========================
+           DIVIDER
+        ========================== */
+
+        .divider {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin: 25px 0;
+            color: #9ca3af;
+            font-size: 13px;
+        }
+
+        .divider::before,
+        .divider::after {
+            content: "";
+            height: 1px;
+            flex: 1;
+            background: #e5e7eb;
+        }
+
+
+        /* =========================
+           SOCIAL BUTTONS
+        ========================== */
+
+        .social-login {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .social-btn {
+            height: 48px;
+            border: 1px solid #e5e7eb;
+            border-radius: 10px;
+            background: #ffffff;
+            color: #374151;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .social-btn:hover {
+            background: #f9fafb;
+            border-color: #d1d5db;
+        }
+
+
+        /* =========================
+           LOGIN
+        ========================== */
+
+        .login-text {
+            text-align: center;
+            margin-top: 25px;
+            color: #6b7280;
+            font-size: 14px;
+        }
+
+        .login-text a {
+            color: #4f46e5;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+
+        /* =========================
+           RESPONSIVE
+        ========================== */
+
+        @media (max-width: 850px) {
+
+            .signup-container {
+                grid-template-columns: 1fr;
+                max-width: 550px;
+            }
+
+            .left-section {
+                min-height: 300px;
+                padding: 40px;
+            }
+
+            .logo {
+                top: 25px;
+                left: 30px;
+            }
+
+            .left-content {
+                margin-top: 30px;
+            }
+
+            .left-content h1 {
+                font-size: 32px;
+            }
+
+            .features {
+                display: none;
+            }
+
+            .right-section {
+                padding: 45px 35px;
+            }
+        }
+
+
+        @media (max-width: 480px) {
+
+            body {
+                padding: 0;
+            }
+
+            .signup-container {
+                min-height: 100vh;
+                border-radius: 0;
+            }
+
+            .left-section {
+                min-height: 250px;
+                padding: 30px;
+            }
+
+            .right-section {
+                padding: 35px 25px;
+            }
+
+            .left-content h1 {
+                font-size: 28px;
+            }
+
+            .social-login {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+
+<body>
+
+    <div class="signup-container">
+
+        <!-- LEFT SECTION -->
+        <div class="left-section">
+
+            <div class="logo">
+                YourBrand
+            </div>
+
+            <div class="left-content">
+
+                <span class="badge">
+                    ✨ Join our community
+                </span>
+
+                <h1>
+                    Create your account
+                    and start your journey.
+                </h1>
+
+                <p>
+                    Join thousands of users and get access to
+                    powerful tools, resources and features
+                    designed to help you grow.
+                </p>
+
+                <div class="features">
+
+                    <div class="feature">
+                        <div class="feature-icon">✓</div>
+                        <span>Easy and secure registration</span>
+                    </div>
+
+                    <div class="feature">
+                        <div class="feature-icon">✓</div>
+                        <span>Access powerful features</span>
+                    </div>
+
+                    <div class="feature">
+                        <div class="feature-icon">✓</div>
+                        <span>Your data stays protected</span>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- RIGHT SECTION -->
+        <div class="right-section">
+
+            <div class="form-container">
+
+                <div class="form-header">
+
+                    <h2>Create Account</h2>
+
+                    <p>
+                        Already have an account?
+                        <a href="#">Login</a>
+                    </p>
+
+                </div>
+
+
+                <form action="{% url 'signup' %}" method="POST">
+                    {% csrf_token %}
+                    <!-- NAME -->
+                    <div class="form-group">
+
+                        <label>
+                            Full Name
+                        </label>
+
+                        <div class="input-box">
+
+                            <span class="input-icon">
+                                👤
+                            </span>
+
+                            <input
+                                type="text"
+                                name = "fname"
+                                class="form-control"
+                                placeholder="Enter your full name"
+                            >
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- EMAIL -->
+                    <div class="form-group">
+
+                        <label>
+                            Email Address
+                        </label>
+
+                        <div class="input-box">
+
+                            <span class="input-icon">
+                                ✉
+                            </span>
+
+                            <input
+                                type="email"
+                                name = 'email'
+                                class="form-control"
+                                placeholder="you@example.com"
+                                
+                            >
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- DATE OF BIRTH -->
+                    <div class="form-group">
+
+                        <label>
+                            Date of Birth
+                        </label>
+
+                        <div class="input-box">
+
+                            <input
+                                type="date"
+                                name="date_of_birth"
+                                class="form-control"
+                            >
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- PASSWORD -->
+                    <div class="form-group">
+
+                        <label>
+                            Password
+                        </label>
+
+                        <div class="input-box">
+
+                            <span class="input-icon">
+                                🔒
+                            </span>
+
+                            <input
+                                type="password"
+                                name = "password"
+                                class="form-control"
+                                placeholder="Create a strong password"
+                            >
+
+                        </div>
+
+                        <div class="password-note">
+                            Use at least 8 characters with numbers and letters.
+                        </div>
+
+                    </div>
+
+
+                    <!-- CONFIRM PASSWORD -->
+                    <div class="form-group">
+
+                        <label>
+                            Confirm Password
+                        </label>
+
+                        <div class="input-box">
+
+                            <span class="input-icon">
+                                🔐
+                            </span>
+
+                            <input
+                                type="password"
+                                name="con_pw"
+                                class="form-control"
+                                placeholder="Confirm your password"
+                            >
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- TERMS -->
+                    <div class="terms">
+
+                        <input
+                            type="checkbox"
+                            id="terms"
+                        >
+
+                        <label for="terms">
+                            I agree to the
+                            <a href="#">Terms & Conditions</a>
+                            and
+                            <a href="#">Privacy Policy</a>.
+                        </label>
+
+                    </div>
+
+
+                    <!-- SIGN UP BUTTON -->
+                    <button
+                        type="submit"
+                        class="signup-btn"
+                    >
+                        Create Account
+                    </button>
+
+                </form>
+
+
+                <!-- DIVIDER -->
+                <div class="divider">
+                    Or continue with
+                </div>
+
+
+                <!-- SOCIAL LOGIN -->
+                <div class="social-login">
+
+                    <button
+                        type="button"
+                        class="social-btn"
+                    >
+                        Google
+                    </button>
+
+                    <button
+                        type="button"
+                        class="social-btn"
+                    >
+                        Facebook
+                    </button>
+
+                </div>
+
+
+                <!-- LOGIN -->
+                <div class="login-text">
+
+                    Already have an account?
+                    <a href="#">
+                        Sign In
+                    </a>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</body>
+</html>

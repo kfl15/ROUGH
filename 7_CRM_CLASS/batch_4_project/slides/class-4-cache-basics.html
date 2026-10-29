@@ -1,0 +1,329 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Class 4 - Cache Basics</title>
+  <style>
+    @page { size: 13.333in 7.5in; margin: 0; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: #dce3e8; color: #172026; font-family: "Liberation Sans", Arial, sans-serif; }
+    .slide { position: relative; width: 13.333in; height: 7.5in; padding: .56in .72in; overflow: hidden; page-break-after: always; background: #f7f8f5; }
+    .slide:last-child { page-break-after: auto; }
+    .slide::before { content: ""; position: absolute; left: 0; top: 0; width: .16in; height: 100%; background: #e75b3b; }
+    .num { position: absolute; right: .45in; bottom: .25in; color: #66727a; font-size: 16px; }
+    .tag { color: #a63b24; font-size: 18px; font-weight: 700; text-transform: uppercase; }
+    h1 { margin: .13in 0 .2in; font-size: 46px; line-height: 1.12; }
+    h2 { margin: .08in 0 .28in; font-size: 34px; line-height: 1.15; }
+    h3 { margin: 0 0 .1in; font-size: 22px; }
+    p, li { font-size: 21px; line-height: 1.32; }
+    ul { margin: .08in 0; padding-left: .32in; }
+    li { margin: .09in 0; }
+    .lead { max-width: 10.8in; font-size: 27px; }
+    .accent { color: #b43c24; font-weight: 700; }
+    .muted { color: #5a6870; }
+    .small { font-size: 15px; }
+    .example { font-size: 17px; line-height: 1.35; }
+    .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: .3in; }
+    .grid3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: .2in; }
+    .box { border: 2px solid #c7d0d5; border-top: 7px solid #147d83; padding: .2in; background: #fff; min-height: 1.25in; }
+    .box.orange { border-top-color: #e75b3b; }
+    .box.yellow { border-top-color: #e7b740; }
+    .flow { display: flex; align-items: center; justify-content: center; gap: .09in; margin-top: .32in; }
+    .step { min-width: 1.42in; padding: .2in .1in; background: #fff; border: 2px solid #147d83; text-align: center; font-size: 18px; font-weight: 700; }
+    .step.db { border-color: #e75b3b; }
+    .step.cache { border-color: #e7b740; background: #fff9df; }
+    .arrow { font-size: 28px; color: #e75b3b; }
+    code, pre { font-family: "DejaVu Sans Mono", monospace; }
+    pre { margin: .12in 0; padding: .17in .21in; background: #172026; color: #eef4f2; font-size: 17px; line-height: 1.32; white-space: pre-wrap; }
+    table { width: 100%; border-collapse: collapse; background: #fff; }
+    th, td { padding: .11in .15in; border: 1px solid #bdc8cd; text-align: left; font-size: 19px; }
+    th { background: #147d83; color: #fff; }
+    .title { display: flex; flex-direction: column; justify-content: center; }
+    .title h1 { font-size: 55px; max-width: 9.6in; }
+    .title .band { position: absolute; right: 0; top: 0; width: 2.2in; height: 100%; background: #147d83; }
+    .title .band::after { content: "CACHE"; position: absolute; top: 2.28in; left: .13in; color: #fff; font-size: 42px; font-weight: 700; transform: rotate(90deg); }
+    .key { color: #ffd36b; }
+    @media screen { .slide { margin: 22px auto; box-shadow: 0 6px 24px #0003; } }
+    @media print { body { background: transparent; } }
+  </style>
+</head>
+<body>
+  <section class="slide title">
+    <div class="tag">Class 4</div>
+    <h1>Cache: Making Applications Faster</h1>
+    <p class="lead">A beginner-friendly introduction before we add cache to our Django CRM.</p>
+    <div class="band"></div><div class="num">1</div>
+  </section>
+
+  <section class="slide">
+    <div class="tag">Today</div>
+    <h2>What will we learn?</h2>
+    <div class="grid2">
+      <div class="box"><h3>Understand</h3><p>What cache is and why applications need it.</p></div>
+      <div class="box orange"><h3>Recognize</h3><p>Key words, types, and the data cache can store.</p></div>
+    </div>
+    <ul>
+      <li>We will <strong>not</strong> write code today.</li>
+      <li>Tomorrow, we will add a small cache to our CRM.</li>
+    </ul>
+    <div class="num">2</div>
+  </section>
+
+  <section class="slide">
+    <div class="tag">Our CRM problem</div>
+    <h2>What if every request asks the database?</h2>
+    <p class="lead">Imagine 1,000 users opening the same customer list at the same time.</p>
+    <div class="flow">
+      <div class="step">User 1</div><div class="arrow">&#8594;</div><div class="step db">Database</div>
+      <div class="arrow">&nbsp;&nbsp;</div><div class="step">User 2</div><div class="arrow">&#8594;</div><div class="step db">Database</div>
+      <div class="arrow">&nbsp;&nbsp;</div><div class="step">...</div>
+    </div>
+    <p>The database repeats the <span class="accent">same work</span> again and again.</p>
+    <p class="small muted"><strong>Simple classroom assumption:</strong> one customer-list query needs 10 ms of database time. The database can safely complete about 100 such queries per second.</p>
+    <table>
+      <tr><th>Users arrive together</th><th>Repeated database reads</th><th>Approx. time to finish them all</th></tr>
+      <tr><td>1 user</td><td>1 query</td><td>10 ms</td></tr>
+      <tr><td>1,000 users</td><td>1,000 queries</td><td>1,000 &divide; 100/sec = <strong>10 seconds</strong></td></tr>
+      <tr><td>10,000 users</td><td>10,000 queries</td><td>10,000 &divide; 100/sec = <strong>100 seconds</strong></td></tr>
+    </table>
+    <p class="small muted">Later requests wait in a queue. In a real system, heavy pressure can make the time even worse.</p>
+    <div class="num">3</div>
+  </section>
+
+  <section class="slide">
+    <div class="tag">Meaning</div>
+    <h2>What is cache?</h2>
+    <p class="lead"><strong>Cache is a temporary, fast copy of data that we may need again soon.</strong></p>
+    <div class="grid3">
+      <div class="box"><h3>Temporary</h3><p>It can expire or be removed.</p></div>
+      <div class="box orange"><h3>Fast</h3><p>Usually quicker than asking the database.</p></div>
+      <div class="box yellow"><h3>A copy</h3><p>The main data still belongs in the database.</p></div>
+    </div>
+    <div class="num">4</div>
+  </section>
+
+  <section class="slide">
+    <div class="tag">Everyday idea</div>
+    <h2>Desk versus library</h2>
+    <div class="grid2">
+      <div class="box orange"><h3>Without cache</h3><p>Each time you need one book, walk to the library and find it.</p></div>
+      <div class="box"><h3>With cache</h3><p>Keep today’s most-used book on your desk for quick access.</p></div>
+    </div>
+    <p class="lead">The library is like the <strong>database</strong>. Your desk is like the <strong>cache</strong>.</p>
+    <div class="num">5</div>
+  </section>
+
+  <section class="slide">
+    <div class="tag">Without cache</div>
+    <h2>Normal request flow</h2>
+    <div class="flow">
+      <div class="step">User</div><div class="arrow">&#8594;</div><div class="step">Django CRM</div><div class="arrow">&#8594;</div><div class="step db">PostgreSQL<br>database</div><div class="arrow">&#8594;</div><div class="step">Django CRM</div><div class="arrow">&#8594;</div><div class="step">User</div>
+    </div>
+    <p class="lead">Every request waits for the database query.</p>
+    <div class="num">6</div>
+  </section>
+
+  <section class="slide">
+    <div class="tag">With cache</div>
+    <h2>First ask the fast copy</h2>
+    <div class="flow">
+      <div class="step">User</div><div class="arrow">&#8594;</div><div class="step">Django CRM</div><div class="arrow">&#8594;</div><div class="step cache">Cache</div><div class="arrow">&#8594;</div><div class="step">User</div>
+    </div>
+    <p class="lead">Only when the cache does not have the data, Django asks PostgreSQL and saves a copy for later.</p>
+    <div class="num">7</div>
+  </section>
+
+  <section class="slide">
+    <div class="tag">Basic structure</div>
+    <h2>Cache usually uses a key and a value</h2>
+    <pre><span class="key">Key</span>:   "customer_list"
+<span class="key">Value</span>: [customer data]</pre>
+    <div class="grid2">
+      <div class="box"><h3>Key</h3><p>A unique label used to find cached data.</p></div>
+      <div class="box orange"><h3>Value</h3><p>The saved data: text, number, image, JSON, or more.</p></div>
+    </div>
+    <p class="small"><strong>Example:</strong> A user asks, “Show me the customer list.” Django uses the key <code>customer_list</code> to ask cache.</p>
+    <div class="flow">
+      <div class="step">User asks for<br>customer list</div><div class="arrow">&#8594;</div>
+      <div class="step">Django asks for key:<br><code>customer_list</code></div><div class="arrow">&#8594;</div>
+      <div class="step cache">Cache finds the<br>same key</div><div class="arrow">&#8594;</div>
+      <div class="step">Returns its value:<br>customer data<br><span class="accent">= cache hit</span></div>
+    </div>
+    <p class="small muted">The <strong>key</strong> finds the data. The connected <strong>value</strong> is what cache returns.</p>
+    <div class="num">8</div>
+  </section>
+
+  <section class="slide">
+    <div class="tag">Two possible results</div>
+    <h2>Cache hit and cache miss</h2>
+    <div class="grid2">
+      <div class="box"><h3>Cache hit &#10003;</h3><p>Data is found in cache.<br><strong>Return it quickly.</strong></p></div>
+      <div class="box orange"><h3>Cache miss &#10007;</h3><p>Data is not in cache.<br><strong>Ask the database.</strong></p></div>
+    </div>
+    <div class="flow">
+      <div class="step">Cache miss</div><div class="arrow">&#8594;</div><div class="step db">Get from database</div><div class="arrow">&#8594;</div><div class="step cache">Save in cache</div>
+    </div>
+    <div class="num">9</div>
+  </section>
+
+  <section class="slide">
+    <div class="tag">Important word</div>
+    <h2>TTL: Time To Live</h2>
+    <p class="lead"><strong>TTL tells cache how long it may keep a value.</strong></p>
+    <pre>customer_list  ->  keep for 60 seconds</pre>
+    <div class="flow">
+      <div class="step cache">Save at 10:00</div><div class="arrow">&#8594;</div><div class="step">Available until 10:01</div><div class="arrow">&#8594;</div><div class="step db">Expired</div>
+    </div>
+    <p>After expiry, Django gets fresh data from the database again.</p>
+    <div class="num">10</div>
+  </section>
+
+  <section class="slide">
+    <div class="tag">Where it lives</div>
+    <h2>How is cache stored?</h2>
+    <div class="grid3">
+      <div class="box"><h3>Memory / RAM</h3><p>Very fast. Common for application cache.</p></div>
+      <div class="box orange"><h3>Disk</h3><p>Can store more, but is usually slower than RAM.</p></div>
+      <div class="box yellow"><h3>Near the user</h3><p>A browser or CDN may store files close to the user.</p></div>
+    </div>
+    <p class="small"><strong>How much space?</strong> There is no one “typical” size. The developer sets a limit. For our classroom example, imagine a <strong>100 MB</strong> memory cache.</p>
+    <div class="flow">
+      <div class="step cache">Limit:<br>100 MB</div><div class="arrow">&#8594;</div>
+      <div class="step">Save data:<br>40 MB used</div><div class="arrow">&#8594;</div>
+      <div class="step">More data:<br>95 MB used</div><div class="arrow">&#8594;</div>
+      <div class="step db">Full:<br>may remove old values</div>
+    </div>
+    <p class="small muted">Used cache space <strong>does</strong> go up when we save values. It goes down when values expire (TTL), are deleted, or are removed to make space. The exact full-cache rule depends on the cache. The limit stays 100 MB until we change it.</p>
+    <div class="num">11</div>
+  </section>
+
+  <section class="slide">
+    <div class="tag">Types: where it lives</div>
+    <h2>Cache can exist in different places</h2>
+    <table>
+      <tr><th>Type</th><th>Location</th><th>Simple example</th></tr>
+      <tr><td>Browser cache</td><td>User's browser</td><td>Logo image already downloaded</td></tr>
+      <tr><td>CDN cache</td><td>Servers near users</td><td>Website image or video</td></tr>
+      <tr><td>Application cache</td><td>With/near Django</td><td>Customer list or dashboard total</td></tr>
+      <tr><td>Database cache</td><td>Database system</td><td>Frequently read query data</td></tr>
+    </table>
+    <p class="small"><strong>CDN = Content Delivery Network.</strong> It is a network of servers that delivers files, such as images and videos, from a server close to the user.</p>
+    <p class="small"><strong>Real-world connection:</strong></p>
+    <div class="box"><h3>Netflix = CDN cache</h3><p>When you press Play, Netflix can stream video from a suitable nearby/ISP server that already stores a copy.</p></div>
+    <div class="num">12</div>
+  </section>
+
+  <section class="slide">
+    <div class="tag">Types: what it stores</div>
+    <h2>Cache can store many kinds of data</h2>
+    <div class="grid3">
+      <div class="box"><h3>Words &amp; numbers</h3><p>Customer name, product price, dashboard count.</p></div>
+      <div class="box orange"><h3>JSON / API response</h3><p>A customer list returned by an API.</p></div>
+      <div class="box yellow"><h3>Images &amp; files</h3><p>Profile image, CSS, JavaScript, PDF, or video.</p></div>
+    </div>
+    <p class="lead">So “cache type” can mean <strong>where it lives</strong> or <strong>what data it stores</strong>.</p>
+    <p class="small"><strong>Examples as cache entries (key &#8594; value):</strong></p>
+    <div class="grid3">
+      <div class="box"><p class="example"><code>customer_42_name</code><br>&#8594; <code>Rahim</code></p></div>
+      <div class="box orange"><p class="example"><code>customer_42</code><br>&#8594; <code>{&quot;id&quot;: 42, &quot;name&quot;: &quot;Rahim&quot;}</code></p></div>
+      <div class="box yellow"><p class="example"><code>customer_42_profile_image</code><br>&#8594; Rahim's profile image file</p></div>
+    </div>
+    <div class="num">13</div>
+  </section>
+
+  <section class="slide">
+    <div class="tag">Why use it?</div>
+    <h2>Cache helps the whole system</h2>
+    <div class="grid3">
+      <div class="box"><h3>Faster</h3><p>Users get common data sooner.</p></div>
+      <div class="box orange"><h3>Less database work</h3><p>Fewer repeated queries.</p></div>
+      <div class="box yellow"><h3>More users</h3><p>The system can handle more repeated reads.</p></div>
+    </div>
+    <p class="lead">Cache is especially useful for data that is read often but changes less often.</p>
+    <div class="num">14</div>
+  </section>
+
+  <section class="slide">
+    <div class="tag">System design</div>
+    <h2>Cache protects the database during heavy traffic</h2>
+    <div class="flow">
+      <div class="step">Many users</div><div class="arrow">&#8594;</div><div class="step cache">One cached copy</div><div class="arrow">&#8594;</div><div class="step">Fast replies</div>
+    </div>
+    <div class="grid2">
+      <div class="box"><h3>Without cache</h3><p>Many repeated reads reach the database.</p></div>
+      <div class="box orange"><h3>With cache</h3><p>Many reads can use the same cached value.</p></div>
+    </div>
+    <div class="num">15</div>
+  </section>
+
+  <section class="slide">
+    <div class="tag">Real example</div>
+    <h2>How Facebook used cache while scaling</h2>
+    <p>Facebook began using <strong>Memcached</strong> in 2005 because database queries on every page load were making pages slower.</p>
+    <div class="grid2">
+      <div class="box"><h3>The idea</h3><p>Keep frequently requested data in fast memory instead of repeatedly asking the database.</p></div>
+      <div class="box orange"><h3>The result</h3><p>Cache became an important part of handling huge numbers of requests as Facebook grew.</p></div>
+    </div>
+    <p class="small"><strong>Simple illustration (not Facebook's exact code):</strong> Many people open the same popular profile or post.</p>
+    <div class="flow">
+      <div class="step">First request</div><div class="arrow">&#8594;</div>
+      <div class="step db">Cache miss:<br>ask database</div><div class="arrow">&#8594;</div>
+      <div class="step cache">Save a copy in<br>Memcached</div><div class="arrow">&#8594;</div>
+      <div class="step">Later requests:<br>cache hit</div>
+    </div>
+    <p class="small muted">Source: Meta Engineering, “Scaling memcache at Facebook,” 2013 — engineering.fb.com/2013/04/15/core-infra/scaling-memcache-at-facebook/</p>
+    <div class="num">16</div>
+  </section>
+
+  <section class="slide">
+    <div class="tag">Important rule</div>
+    <h2>Cache is not the main database</h2>
+    <div class="grid2">
+      <div class="box orange"><h3>Database = official record</h3><p>Keep the important, permanent customer and bill data here.</p></div>
+      <div class="box"><h3>Cache = fast temporary copy</h3><p>May expire, be cleared, or sometimes contain older data.</p></div>
+    </div>
+    <p class="lead">If cache disappears, the application should still work by reading the database.</p>
+    <div class="num">17</div>
+  </section>
+
+  <section class="slide">
+    <div class="tag">Be careful</div>
+    <h2>Cache has trade-offs</h2>
+    <div class="grid3">
+      <div class="box orange"><h3>Old data</h3><p>A cached value may not show a recent update.</p></div>
+      <div class="box yellow"><h3>Memory limit</h3><p>We cannot save everything forever.</p></div>
+      <div class="box"><h3>Extra thinking</h3><p>We must decide when to refresh or remove it.</p></div>
+    </div>
+    <p class="lead">The right question is: <strong>what is safe and useful to cache?</strong></p>
+    <div class="num">18</div>
+  </section>
+
+  <section class="slide">
+    <div class="tag">Tomorrow</div>
+    <h2>Cache in our Django CRM</h2>
+    <div class="flow">
+      <div class="step">Choose a simple cache</div><div class="arrow">&#8594;</div><div class="step">Add configuration</div><div class="arrow">&#8594;</div><div class="step cache">Save &amp; read CRM data</div>
+    </div>
+    <ul>
+      <li>Which cache type will our CRM use?</li>
+      <li>Why choose it now?</li>
+      <li>What do we gain, and what do we give up?</li>
+    </ul>
+    <div class="num">19</div>
+  </section>
+
+  <section class="slide">
+    <div class="tag">Quick review</div>
+    <h2>Can you answer these?</h2>
+    <ol>
+      <li>What is the difference between a cache hit and a cache miss?</li>
+      <li>Why does cache use a key?</li>
+      <li>Why is a TTL useful?</li>
+      <li>Why is cache helpful, but not a replacement for the database?</li>
+    </ol>
+    <p class="lead"><strong>Remember:</strong> cache keeps commonly needed data closer and faster.</p>
+    <div class="num">20</div>
+  </section>
+</body>
+</html>

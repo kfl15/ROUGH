@@ -1,0 +1,452 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Registration Search API · Implementation</title><style>
+@page { size: 13.333in 7.5in; margin: 0; }
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body { background: #d9e3e6; color: #1c2f37; font-family: "Liberation Sans", Arial, sans-serif; }
+.slide { position: relative; width: 13.333in; height: 7.5in; padding: .43in .63in .43in .72in; overflow: hidden; page-break-after: always; background: #f8faf8; }
+.slide:last-child { page-break-after: auto; }
+.cover { background: #172f39; color: #f5f8f5; }
+.cover .edge { background: #e56b45; }
+.cover .slide-content { margin: 1.22in .30in 0 .18in; max-height: 5in; }
+.cover-kicker { font-size: 18px; letter-spacing: .12em; color: #68ced0; font-weight: bold; }
+.cover h1 { font-size: 72px; line-height: 1.07; margin: .24in 0; }
+.cover-lead { font-size: 27px; max-width: 9.6in; line-height: 1.35; }
+.cover-topics { margin-top: .42in; font-size: 18px; color: #d7e6e5; }
+.cover-topics b { color: #ee7a55; padding: 0 .10in; }
+.cover footer { border-top-color: #56727a; color: #b7cecf; }
+.edge { position: absolute; left: 0; top: 0; height: 100%; width: .16in; background: #e56b45; }
+header { border-bottom: 2px solid #c9d7d9; padding-bottom: .13in; margin-bottom: .17in; }
+.eyebrow { color: #087c82; font-size: 14px; font-weight: bold; letter-spacing: .12em; }
+h2 { margin: .05in 0 .04in; font-size: 36px; line-height: 1.08; color: #172f39; }
+.subtitle { color: #687d82; font-size: 16px; }
+.slide-content { max-height: 5.62in; overflow: hidden; font-size: 19px; line-height: 1.31; }
+.slide-content p { margin: .10in 0; overflow-wrap: anywhere; }
+.slide-content strong { color: #0b696e; }
+.slide-content p:first-child { margin-top: .04in; }
+.slide-content p:has(strong:first-child) { color: #263d45; }
+.teacher { background: #eaf2f1; border-left: 6px solid #0c7c80; padding: .12in .18in; margin: .18in 0 .08in; }
+.teacher span { display: block; font-size: 14px; font-weight: bold; letter-spacing: .08em; text-transform: uppercase; color: #0a6c72; }
+.teacher p { margin: .06in 0 0; }
+code, pre { font-family: "DejaVu Sans Mono", monospace; }
+p code, td code { font-size: .84em; background: #e7eceb; padding: 1px 4px; border-radius: 3px; overflow-wrap: anywhere; }
+.code { background: #172b34; color: #f0f7f4; font-size: 16px; line-height: 1.31; padding: .14in .2in; border-radius: 7px; white-space: pre-wrap; overflow-wrap: anywhere; margin: .12in 0; }
+.code code { font-size: inherit; }
+table { border-collapse: collapse; width: 100%; margin: .10in 0 .14in; background: white; }
+td, th { text-align: left; border: 1px solid #c9d8d7; padding: .09in .11in; font-size: 17px; line-height: 1.22; vertical-align: top; overflow-wrap: anywhere; }
+th { background: #137b80; color: white; }
+td code { font-size: .79em; }
+ol, ul { padding-left: .34in; margin: .10in 0; }
+li { margin: .08in 0; }
+footer { position: absolute; bottom: .20in; left: .72in; right: .61in; display: flex; justify-content: space-between; border-top: 1px solid #c9d7d9; padding-top: .08in; color: #718389; font-size: 12px; }
+.reference .slide-content { font-size: 17px; }
+.reference .code { font-size: 14px; }
+.reference table td, .reference table th { font-size: 15px; }
+.reference a { color: #0a777b; }
+.dense-1 .slide-content { font-size: 17px; line-height: 1.24; }
+.dense-1 .code { font-size: 14px; line-height: 1.2; padding: .11in .16in; }
+.dense-1 td, .dense-1 th { font-size: 15px; padding: .07in .09in; }
+.dense-1 .teacher { margin-top: .10in; padding: .08in .13in; }
+.dense-2 .slide-content { font-size: 15px; line-height: 1.17; }
+.dense-2 .code { font-size: 12px; line-height: 1.15; padding: .08in .12in; }
+.dense-2 td, .dense-2 th { font-size: 13px; padding: .05in .07in; }
+.dense-2 .teacher { margin-top: .07in; padding: .06in .10in; }
+.dense-2 .slide-content p { margin: .06in 0; }
+.dense-3 .slide-content { font-size: 13px; line-height: 1.12; }
+.dense-3 .code { font-size: 11px; line-height: 1.11; padding: .06in .09in; }
+.dense-3 td, .dense-3 th { font-size: 12px; padding: .04in .06in; }
+.dense-3 .teacher { margin-top: .05in; padding: .05in .08in; }
+.dense-3 .slide-content p { margin: .04in 0; }
+@media screen { .slide { margin: 24px auto; box-shadow: 0 8px 25px #18303c31; } }
+@media print { body { background: transparent; } }
+</style></head><body><section class="slide cover">
+  <div class="edge"></div>
+  <div class="slide-content">
+    <div class="cover-kicker">FROM THEORY TO CODE · DJANGO REST FRAMEWORK</div>
+    <h1>Registration<br>Search API</h1>
+    <p class="cover-lead">A teacher-led walkthrough of the CRM code and a live Postman demonstration.</p>
+    <div class="cover-topics">Name and email search <b>·</b> DOB filters <b>·</b> Ordering <b>·</b> Pagination <b>·</b> JWT</div>
+  </div>
+  <footer><span>Django REST Framework · Registration API</span><span>01</span></footer>
+</section>
+<section class="slide lesson">
+  <div class="edge"></div>
+  <header><div class="eyebrow">CRM · SEARCH API IMPLEMENTATION</div><h2>What will students be able to do?</h2><div class="subtitle">Lesson step 1 of 25</div></header>
+  <div class="slide-content"><p><strong>Show:</strong> The existing <code>/account/api/registrations/</code> list can now search names and emails, filter by an exact email or date-of-birth range, order results, and return one page at a time. The same API still requires a JWT access token.</p>
+<div class="teacher"><span>Teacher explanation</span><p>This is a practical DRF lesson. We are extending the Registration API students already built; we are not creating a separate search service. By the end, students should be able to read a URL such as <code>?search=testcase&amp;dob_from=2026-09-01&amp;dob_to=2026-09-30</code>, predict which CRM customers should remain, and explain the JSON response.</p></div>
+<p><strong>Opening question:</strong> If a teacher remembers a customer&#x27;s name but not their registration ID, how should the CRM find the customer?</p></div>
+  <footer><span>Django REST Framework · Registration API</span><span>02</span></footer>
+</section>
+<section class="slide lesson">
+  <div class="edge"></div>
+  <header><div class="eyebrow">CRM · SEARCH API IMPLEMENTATION</div><h2>The CRM pieces used today</h2><div class="subtitle">Lesson step 2 of 25</div></header>
+  <div class="slide-content"><p><strong>Show:</strong></p>
+<table><tr><th>Piece</th><th>What it holds or does</th></tr><tr><td><code>Registration</code></td><td><code>id</code>, <code>name</code>, <code>email</code>, <code>password</code>, <code>date_of_birth</code></td></tr><tr><td><code>RegistrationSerializer</code></td><td>Controls fields accepted and returned by the Registration API</td></tr><tr><td><code>RegistrationViewSet</code></td><td>Provides the list and detail API actions</td></tr><tr><td>Existing route</td><td><code>GET /account/api/registrations/</code></td></tr><tr><td>Django User</td><td>Logs into the JWT API; separate from a <code>Registration</code> customer</td></tr></table>
+<div class="teacher"><span>Teacher explanation</span><p>The customer list in the HTML page and this API are separate views. The HTML customer&#x27;s search box is still only visual. The API work in this lesson does not connect that box. The Bill model is also outside this implementation lesson because it does not yet have an API.</p></div></div>
+  <footer><span>Django REST Framework · Registration API</span><span>03</span></footer>
+</section>
+<section class="slide lesson">
+  <div class="edge"></div>
+  <header><div class="eyebrow">CRM · SEARCH API IMPLEMENTATION</div><h2>Why extend the list API?</h2><div class="subtitle">Lesson step 3 of 25</div></header>
+  <div class="slide-content"><p><strong>Show:</strong> Before this change, <code>GET /account/api/registrations/</code> returned the list, but adding <code>?search=Teacher</code> did not make the ViewSet search. Knowing an ID allowed a detail lookup; it did not help someone who knew only a name or email.</p>
+<pre class="code text"><code>GET /account/api/registrations/2/           -&gt; customer with ID 2
+GET /account/api/registrations/?search=Teacher -&gt; customers matching Teacher</code></pre>
+<div class="teacher"><span>Teacher explanation</span><p>Both requests use the route that already exists. The first selects one known ID. The second searches the collection using a query parameter. Search happens in Django/database code before the response is serialized and sent to the client. This can reduce how many rows the client receives. DRF&#x27;s default partial search is not automatically fast on a large database; indexes and query measurement would be separate scaling work.</p></div></div>
+  <footer><span>Django REST Framework · Registration API</span><span>04</span></footer>
+</section>
+<section class="slide lesson">
+  <div class="edge"></div>
+  <header><div class="eyebrow">CRM · SEARCH API IMPLEMENTATION</div><h2>Read a search URL</h2><div class="subtitle">Lesson step 4 of 25</div></header>
+  <div class="slide-content"><p><strong>Show:</strong></p>
+<pre class="code text"><code>GET /account/api/registrations/?search=Teacher
+    └──────── list endpoint ────────┘ └ query parameter ┘</code></pre>
+<div class="teacher"><span>Teacher explanation</span><p><code>GET</code> means read data. The path chooses the Registration list. The <code>?</code> starts the query string, and <code>search=Teacher</code> supplies a value to DRF&#x27;s <code>SearchFilter</code>. Multiple parameters are joined with <code>&amp;</code>. The route did not change when we added filtering. A valid JWT is still required.</p></div>
+<p><strong>Ask students:</strong> Would the API need a new URL for <code>?email=teacher.test@example.com</code>? Answer: no; it is another parameter on the same list route.</p></div>
+  <footer><span>Django REST Framework · Registration API</span><span>05</span></footer>
+</section>
+<section class="slide lesson">
+  <div class="edge"></div>
+  <header><div class="eyebrow">CRM · SEARCH API IMPLEMENTATION</div><h2>What happens inside the request?</h2><div class="subtitle">Lesson step 5 of 25</div></header>
+  <div class="slide-content"><p><strong>Show:</strong></p>
+<pre class="code text"><code>GET URL + Bearer token
+  -&gt; JWT authentication checks the token
+  -&gt; get_queryset() applies exact email and DOB bounds
+  -&gt; SearchFilter applies ?search=
+  -&gt; OrderingFilter chooses the order
+  -&gt; pagination selects the requested page
+  -&gt; RegistrationSerializer builds the JSON without password</code></pre>
+<div class="teacher"><span>Teacher explanation</span><p>The features work together. A customer must pass each requested structured filter and the text search. Ordering arranges those matches, and pagination sends only one part of them. The serializer controls what each returned customer looks like. If authentication fails, the request stops with <code>401</code> before customers are returned.</p></div></div>
+  <footer><span>Django REST Framework · Registration API</span><span>06</span></footer>
+</section>
+<section class="slide lesson">
+  <div class="edge"></div>
+  <header><div class="eyebrow">CRM · SEARCH API IMPLEMENTATION</div><h2>Which code files changed?</h2><div class="subtitle">Lesson step 6 of 25</div></header>
+  <div class="slide-content"><p><strong>Show:</strong></p>
+<table><tr><th>File</th><th>Change</th></tr><tr><td><code>crm/registration/serializers.py</code></td><td>Hide <code>password</code> from API responses</td></tr><tr><td><code>crm/registration/views.py</code></td><td>Add search, exact email and DOB filters, ordering, and pagination</td></tr></table>
+<div class="teacher"><span>Teacher explanation</span><p>The router already supplied <code>/account/api/registrations/</code>. We did not add a URL, model field, migration, or package for this lesson. Students should look for each new behavior in the existing serializer and ViewSet.</p></div></div>
+  <footer><span>Django REST Framework · Registration API</span><span>07</span></footer>
+</section>
+<section class="slide lesson">
+  <div class="edge"></div>
+  <header><div class="eyebrow">CRM · SEARCH API IMPLEMENTATION</div><h2>Serializer: accept password input, omit it from output</h2><div class="subtitle">Lesson step 7 of 25</div></header>
+  <div class="slide-content"><p><strong>Show the code in <code>RegistrationSerializer.Meta</code>:</strong></p>
+<pre class="code python"><code>fields = [&#x27;id&#x27;, &#x27;name&#x27;, &#x27;email&#x27;, &#x27;password&#x27;, &#x27;date_of_birth&#x27;]
+extra_kwargs = {
+    &#x27;password&#x27;: {&#x27;write_only&#x27;: True},
+}</code></pre>
+<div class="teacher"><span>Teacher explanation</span><p>The same <code>ModelViewSet</code> can accept create/update requests and return customer records. <code>write_only</code> means a password may be sent in an API request but is not included when the serializer produces a response. In the live list, each record had <code>id</code>, <code>name</code>, <code>email</code>, and <code>date_of_birth</code>; no record had a <code>password</code> key. This setting only controls serialization. The custom <code>Registration</code> model still stores its password as plain text, which requires separate work before real production use.</p></div>
+<p><strong>Memory phrase:</strong> It may go <strong>in</strong>; it does not come <strong>out</strong>.</p></div>
+  <footer><span>Django REST Framework · Registration API</span><span>08</span></footer>
+</section>
+<section class="slide lesson">
+  <div class="edge"></div>
+  <header><div class="eyebrow">CRM · SEARCH API IMPLEMENTATION</div><h2>Text search with DRF `SearchFilter`</h2><div class="subtitle">Lesson step 8 of 25</div></header>
+  <div class="slide-content"><p><strong>Show the code in <code>RegistrationViewSet</code>:</strong></p>
+<pre class="code python"><code>filter_backends = [SearchFilter, OrderingFilter]
+search_fields = [&#x27;name&#x27;, &#x27;email&#x27;]</code></pre>
+<div class="teacher"><span>Teacher explanation</span><p><code>SearchFilter</code> reads the <code>search</code> query parameter. <code>search_fields</code> allows it to check only the Registration <code>name</code> and <code>email</code> fields. With the current DRF default, matching is case-insensitive and partial. A record may match in either field. A password is never a searchable field. If <code>SearchFilter</code> were absent, <code>?search=Teacher</code> would not change the list.</p></div>
+<p><strong>Live example:</strong> <code>GET /account/api/registrations/?search=Teacher</code> returned one result: <code>Teacher Test</code>, ID 2. A lowercase <code>teacher</code> would match it too.</p></div>
+  <footer><span>Django REST Framework · Registration API</span><span>09</span></footer>
+</section>
+<section class="slide lesson">
+  <div class="edge"></div>
+  <header><div class="eyebrow">CRM · SEARCH API IMPLEMENTATION</div><h2>Exact email is a different rule</h2><div class="subtitle">Lesson step 9 of 25</div></header>
+  <div class="slide-content"><p><strong>Show the first part of <code>get_queryset()</code>:</strong></p>
+<pre class="code python"><code>def get_queryset(self):
+    queryset = super().get_queryset()
+    email = self.request.query_params.get(&#x27;email&#x27;)
+
+    if email:
+        queryset = queryset.filter(email__iexact=email)</code></pre>
+<div class="teacher"><span>Teacher explanation</span><p><code>super().get_queryset()</code> starts with the Registration records configured on the ViewSet. <code>query_params.get(&#x27;email&#x27;)</code> reads <code>?email=</code> from the URL. If it was supplied, <code>email__iexact</code> keeps only a whole email match while ignoring letter case. This is useful when the caller knows a particular customer&#x27;s full email. If no email parameter is supplied, this part leaves the queryset alone.</p></div>
+<table><tr><th>Request</th><th>Live result</th><th>Why</th></tr><tr><td><code>?email=teacher.test@example.com</code></td><td><code>count: 1</code></td><td>Full email matches</td></tr><tr><td><code>?email=teacher.test</code></td><td><code>count: 0</code></td><td>A fragment is not a full email</td></tr><tr><td><code>?search=teacher.test</code></td><td>Matches Teacher Test</td><td>General search accepts a fragment</td></tr></table></div>
+  <footer><span>Django REST Framework · Registration API</span><span>10</span></footer>
+</section>
+<section class="slide lesson">
+  <div class="edge"></div>
+  <header><div class="eyebrow">CRM · SEARCH API IMPLEMENTATION</div><h2>Date filters read text from the URL</h2><div class="subtitle">Lesson step 10 of 25</div></header>
+  <div class="slide-content"><p><strong>Show:</strong></p>
+<pre class="code python"><code>from_text = self.request.query_params.get(&#x27;dob_from&#x27;)
+to_text = self.request.query_params.get(&#x27;dob_to&#x27;)
+
+try:
+    from_date = parse_date(from_text) if from_text else None
+    to_date = parse_date(to_text) if to_text else None
+except ValueError:
+    raise ValidationError({&#x27;date&#x27;: &#x27;Use YYYY-MM-DD for dob_from and dob_to.&#x27;})</code></pre>
+<div class="teacher"><span>Teacher explanation</span><p>A URL contains text, even when that text looks like a date. <code>parse_date()</code> turns the supplied text into date values that Django can compare. Either bound is optional. If the supplied text cannot represent a valid calendar date, the API returns a <code>400</code> error with a useful message. These checks validate the <strong>search input</strong>; they do not validate a customer&#x27;s saved date of birth when a customer is created.</p></div>
+<p><strong>Example:</strong> <code>dob_from=banana</code> is an invalid filter value. A saved customer DOB such as <code>2027-02-01</code> is a different piece of data; this search code does not decide whether it is a realistic DOB.</p></div>
+  <footer><span>Django REST Framework · Registration API</span><span>11</span></footer>
+</section>
+<section class="slide lesson">
+  <div class="edge"></div>
+  <header><div class="eyebrow">CRM · SEARCH API IMPLEMENTATION</div><h2>Date range errors and inclusive bounds</h2><div class="subtitle">Lesson step 11 of 25</div></header>
+  <div class="slide-content"><p><strong>Show the remaining date logic:</strong></p>
+<pre class="code python"><code>if (from_text and from_date is None) or (to_text and to_date is None):
+    raise ValidationError({&#x27;date&#x27;: &#x27;Use YYYY-MM-DD for dob_from and dob_to.&#x27;})
+
+if from_date and to_date and from_date &gt; to_date:
+    raise ValidationError({&#x27;date&#x27;: &#x27;dob_from must be before or equal to dob_to.&#x27;})
+
+if from_date:
+    queryset = queryset.filter(date_of_birth__gte=from_date)
+if to_date:
+    queryset = queryset.filter(date_of_birth__lte=to_date)
+
+return queryset</code></pre>
+<div class="teacher"><span>Teacher explanation</span><p>The first check catches date text the parser could not understand. The second rejects a start after the end. <code>gte</code> means on or after; <code>lte</code> means on or before. The boundaries themselves are included. A customer with a <code>null</code> DOB does not match a date range. The final <code>return queryset</code> hands the narrowed records back to DRF.</p></div>
+<p><strong>Live example:</strong> <code>?dob_from=2026-09-01&amp;dob_to=2026-09-30</code> returned three records, including customers born on September 1 and September 30.</p></div>
+  <footer><span>Django REST Framework · Registration API</span><span>12</span></footer>
+</section>
+<section class="slide lesson">
+  <div class="edge"></div>
+  <header><div class="eyebrow">CRM · SEARCH API IMPLEMENTATION</div><h2>Combine search and filters</h2><div class="subtitle">Lesson step 12 of 25</div></header>
+  <div class="slide-content"><p><strong>Show:</strong></p>
+<pre class="code text"><code>GET /account/api/registrations/?search=testcase&amp;dob_from=2026-09-01&amp;dob_to=2026-09-30</code></pre>
+<div class="teacher"><span>Teacher explanation</span><p>Text search can match a term in <code>name</code> <strong>or</strong> <code>email</code>. The result must <strong>also</strong> satisfy the date range. In the live data, the search term <code>testcase</code> matched multiple names, but only <code>testcase15</code> had a DOB inside this September 2026 range. The final response had <code>count: 1</code> and ID 14. A request with <code>search=Teacher</code> and the same date range returned <code>count: 0</code> because Teacher Test has a <code>null</code> DOB.</p></div>
+<p><strong>Student prediction:</strong> Before sending the request, ask which customer should survive both conditions.</p></div>
+  <footer><span>Django REST Framework · Registration API</span><span>13</span></footer>
+</section>
+<section class="slide lesson">
+  <div class="edge"></div>
+  <header><div class="eyebrow">CRM · SEARCH API IMPLEMENTATION</div><h2>Ordering the matches</h2><div class="subtitle">Lesson step 13 of 25</div></header>
+  <div class="slide-content"><p><strong>Show:</strong></p>
+<pre class="code python"><code>filter_backends = [SearchFilter, OrderingFilter]
+ordering = [&#x27;id&#x27;]
+ordering_fields = [&#x27;id&#x27;, &#x27;name&#x27;, &#x27;email&#x27;, &#x27;date_of_birth&#x27;]</code></pre>
+<div class="teacher"><span>Teacher explanation</span><p><code>OrderingFilter</code> reads <code>?ordering=</code>. The <code>ordering_fields</code> list limits the fields a client may use. If no ordering parameter is sent, the ViewSet orders by ID. A leading minus sign means descending order. Ordering matters especially with pagination: page 1 and page 2 need a predictable sequence. For the classroom demo, <code>-id</code> avoids ambiguity from records with missing DOBs.</p></div>
+<p><strong>Live example:</strong> <code>?ordering=-id&amp;page_size=3&amp;page=1</code> showed IDs <code>14</code>, <code>13</code>, and <code>10</code> first. Without the minus sign, lower IDs come first.</p></div>
+  <footer><span>Django REST Framework · Registration API</span><span>14</span></footer>
+</section>
+<section class="slide lesson">
+  <div class="edge"></div>
+  <header><div class="eyebrow">CRM · SEARCH API IMPLEMENTATION</div><h2>Pagination: one page of results</h2><div class="subtitle">Lesson step 14 of 25</div></header>
+  <div class="slide-content"><p><strong>Show:</strong></p>
+<pre class="code python"><code>class RegistrationPagination(PageNumberPagination):
+    page_size = 10
+    page_size_query_param = &#x27;page_size&#x27;
+    max_page_size = 50
+
+class RegistrationViewSet(viewsets.ModelViewSet):
+    pagination_class = RegistrationPagination</code></pre>
+<div class="teacher"><span>Teacher explanation</span><p>The default page holds ten records. A client may request a different page size with <code>page_size</code>, but no more than 50. <code>page</code> selects which page to read. <code>pagination_class</code> connects these rules to this ViewSet. Pagination applies after filtering and ordering, so <code>count</code> is the total number of matches, not just the number on the current page.</p></div>
+<p><strong>Live example:</strong> With nine matching customers, <code>?page_size=3&amp;page=2</code> gives <code>count: 9</code>, three items in <code>results</code>, and non-null <code>previous</code> and <code>next</code> links.</p></div>
+  <footer><span>Django REST Framework · Registration API</span><span>15</span></footer>
+</section>
+<section class="slide lesson">
+  <div class="edge"></div>
+  <header><div class="eyebrow">CRM · SEARCH API IMPLEMENTATION</div><h2>Read the JSON response</h2><div class="subtitle">Lesson step 15 of 25</div></header>
+  <div class="slide-content"><p><strong>Show a live-result example for <code>?search=Teacher</code>:</strong></p>
+<pre class="code json"><code>{
+  &quot;count&quot;: 1,
+  &quot;next&quot;: null,
+  &quot;previous&quot;: null,
+  &quot;results&quot;: [
+    {
+      &quot;id&quot;: 2,
+      &quot;name&quot;: &quot;Teacher Test&quot;,
+      &quot;email&quot;: &quot;teacher.test@example.com&quot;,
+      &quot;date_of_birth&quot;: null
+    }
+  ]
+}</code></pre>
+<div class="teacher"><span>Teacher explanation</span><p><code>count</code> is the total number of records left after search and filters. <code>results</code> contains the current page. <code>next</code> and <code>previous</code> are page links or <code>null</code> when there is no such page. The password is absent because the serializer marks it write-only. A valid search with no matches returns <code>200 OK</code>, <code>count: 0</code>, and <code>results: []</code>; that is different from a bad request.</p></div></div>
+  <footer><span>Django REST Framework · Registration API</span><span>16</span></footer>
+</section>
+<section class="slide lesson">
+  <div class="edge"></div>
+  <header><div class="eyebrow">CRM · SEARCH API IMPLEMENTATION</div><h2>Start the live project</h2><div class="subtitle">Lesson step 16 of 25</div></header>
+  <div class="slide-content"><p><strong>Show the terminal commands:</strong></p>
+<pre class="code bash"><code>cd /data/2026/7_CRM_CLASS/batch_4_project
+docker compose up -d db
+docker compose ps
+source .venv/bin/activate
+cd crm
+python manage.py migrate
+python manage.py runserver 127.0.0.1:8001</code></pre>
+<div class="teacher"><span>Teacher explanation</span><p>PostgreSQL runs in Docker; Django runs locally from the virtual environment. <code>docker compose ps</code> should show <code>crm-postgres</code> as healthy. <code>migrate</code> is safe to run again and may report no migrations to apply. Keep the Django terminal running while using Postman. The development server is at <code>http://127.0.0.1:8001/</code>.</p></div>
+<p><strong>Expected startup lines:</strong> <code>System check identified no issues</code> and <code>Starting WSGI development server at http://127.0.0.1:8001/</code>.</p></div>
+  <footer><span>Django REST Framework · Registration API</span><span>17</span></footer>
+</section>
+<section class="slide lesson">
+  <div class="edge"></div>
+  <header><div class="eyebrow">CRM · SEARCH API IMPLEMENTATION</div><h2>Postman request 1: get a JWT</h2><div class="subtitle">Lesson step 17 of 25</div></header>
+  <div class="slide-content"><p><strong>Show the saved request <code>1_CRM login</code>:</strong></p>
+<pre class="code http"><code>POST http://127.0.0.1:8001/account/api/login/
+Content-Type: application/json
+
+{&quot;email&quot;:&quot;&lt;your Django user email&gt;&quot;,&quot;password&quot;:&quot;&lt;your password&gt;&quot;}</code></pre>
+<div class="teacher"><span>Teacher explanation</span><p>Set Postman Body to <strong>raw → JSON</strong> and replace the placeholders with the Django User credentials you created with <code>createsuperuser</code>. This login uses a <strong>Django User</strong>, not a customer in <code>Registration</code>. The instructor&#x27;s local demo credentials are recorded in the private <code>PROJECT_MEMORY.md</code> file. A successful login gives <code>200 OK</code> with an <code>access</code> and a <code>refresh</code> token. The access token is what the Registration API needs.</p></div>
+<p><strong>Possible response shape:</strong></p>
+<pre class="code json"><code>{&quot;refresh&quot;:&quot;&lt;long refresh token&gt;&quot;,&quot;access&quot;:&quot;&lt;long access token&gt;&quot;}</code></pre></div>
+  <footer><span>Django REST Framework · Registration API</span><span>18</span></footer>
+</section>
+<section class="slide lesson">
+  <div class="edge"></div>
+  <header><div class="eyebrow">CRM · SEARCH API IMPLEMENTATION</div><h2>Postman saves the access token automatically</h2><div class="subtitle">Lesson step 18 of 25</div></header>
+  <div class="slide-content"><p><strong>Show <code>1_CRM login</code> → Scripts → Post-response:</strong></p>
+<pre class="code javascript"><code>if (pm.response.code === 200) {
+    pm.collectionVariables.set(&quot;access_token&quot;, pm.response.json().access);
+}</code></pre>
+<div class="teacher"><span>Teacher explanation</span><p>This runs after the login response arrives. If the response is successful, Postman reads the <code>access</code> field and saves it in a collection variable named <code>access_token</code>. Send <code>1_CRM login</code> after saving the script. If the login request has not been sent since the script was added, the variable may still be empty. This script is Postman test/demo setup, not Django server code.</p></div></div>
+  <footer><span>Django REST Framework · Registration API</span><span>19</span></footer>
+</section>
+<section class="slide lesson">
+  <div class="edge"></div>
+  <header><div class="eyebrow">CRM · SEARCH API IMPLEMENTATION</div><h2>Postman request 2: use the token</h2><div class="subtitle">Lesson step 19 of 25</div></header>
+  <div class="slide-content"><p><strong>Show the saved request <code>2_CRM Registration Search</code>:</strong></p>
+<pre class="code http"><code>GET http://127.0.0.1:8001/account/api/registrations/
+Authorization: Bearer &lt;access token&gt;</code></pre>
+<p><strong>Postman setting:</strong> Authorization → Auth Type <strong>Bearer Token</strong> → Token field <code>{{access_token}}</code>. Do not type <code>Bearer</code> into Postman&#x27;s Token field; Postman adds that word to the header.</p>
+<div class="teacher"><span>Teacher explanation</span><p>The double braces mean “insert the collection variable saved by request 1.” Send login first, then send this GET request. A valid token gives <code>200 OK</code> and the paginated list. A missing or expired token gives <code>401 Unauthorized</code>; send login again to get a new access token. A browser address bar alone cannot add this Bearer header to the request.</p></div></div>
+  <footer><span>Django REST Framework · Registration API</span><span>20</span></footer>
+</section>
+<section class="slide lesson">
+  <div class="edge"></div>
+  <header><div class="eyebrow">CRM · SEARCH API IMPLEMENTATION</div><h2>Postman Params: turn one feature on at a time</h2><div class="subtitle">Lesson step 20 of 25</div></header>
+  <div class="slide-content"><p><strong>Show:</strong> Postman <strong>Params</strong> rows become query parameters in the URL. A checked row is sent; an unchecked row is not sent. The URL at the top is the best way to confirm what Postman will send.</p>
+<table><tr><th>Checked Params row</th><th>Request</th><th>Live result</th></tr><tr><td><code>search = Teacher</code></td><td><code>?search=Teacher</code></td><td><code>count: 1</code>, Teacher Test</td></tr><tr><td><code>email = teacher.test@example.com</code></td><td><code>?email=teacher.test@example.com</code></td><td><code>count: 1</code></td></tr><tr><td><code>email = teacher.test</code></td><td><code>?email=teacher.test</code></td><td><code>count: 0</code></td></tr></table>
+<div class="teacher"><span>Teacher explanation</span><p>The first is a partial text search over name or email. The latter two use the exact email filter. Show the URL changing when a checkbox is toggled. In the live lesson, an old checked <code>search=Teacher</code> combined with a date range produced zero records; that was correct because Teacher Test has no DOB in that range. Students should always read the full URL before debugging the backend.</p></div></div>
+  <footer><span>Django REST Framework · Registration API</span><span>21</span></footer>
+</section>
+<section class="slide lesson">
+  <div class="edge"></div>
+  <header><div class="eyebrow">CRM · SEARCH API IMPLEMENTATION</div><h2>Postman Params: dates and combined conditions</h2><div class="subtitle">Lesson step 21 of 25</div></header>
+  <div class="slide-content"><p><strong>Show these requests and expected responses:</strong></p>
+<table><tr><th>Request suffix</th><th>Live result</th></tr><tr><td><code>?dob_from=2026-09-01</code></td><td><code>count: 4</code>; includes a later 2027 DOB because no upper bound was sent</td></tr><tr><td><code>?dob_from=2026-09-01&amp;dob_to=2026-09-30</code></td><td><code>count: 3</code></td></tr><tr><td><code>?search=testcase&amp;dob_from=2026-09-01&amp;dob_to=2026-09-30</code></td><td><code>count: 1</code>, testcase15, ID 14</td></tr></table>
+<div class="teacher"><span>Teacher explanation</span><p>In Postman, check both date rows to send a range. If <code>dob_to</code> is unchecked, the API receives only the lower bound. The combined request illustrates the rule: a returned customer must match the text search and fall inside the date range. If a student&#x27;s count differs, first inspect the checked Params rows and the complete URL.</p></div></div>
+  <footer><span>Django REST Framework · Registration API</span><span>22</span></footer>
+</section>
+<section class="slide lesson">
+  <div class="edge"></div>
+  <header><div class="eyebrow">CRM · SEARCH API IMPLEMENTATION</div><h2>Postman Params: pages and order</h2><div class="subtitle">Lesson step 22 of 25</div></header>
+  <div class="slide-content"><p><strong>Show:</strong></p>
+<table><tr><th>Request suffix</th><th>Expected live result</th></tr><tr><td><code>?page_size=3&amp;page=1</code></td><td>Three records in <code>results</code>; <code>count: 9</code>; <code>next</code> is a link</td></tr><tr><td><code>?page_size=3&amp;page=2</code></td><td>The next three records; <code>count</code> remains 9</td></tr><tr><td><code>?ordering=-id&amp;page_size=3&amp;page=1</code></td><td>First IDs <code>14</code>, <code>13</code>, <code>10</code></td></tr></table>
+<div class="teacher"><span>Teacher explanation</span><p>A page never changes the total match count; it changes which part appears in <code>results</code>. Ordering controls the sequence before the page is taken. For this nine-row data set, a page size of three visibly creates three pages without adding test customers.</p></div></div>
+  <footer><span>Django REST Framework · Registration API</span><span>23</span></footer>
+</section>
+<section class="slide lesson">
+  <div class="edge"></div>
+  <header><div class="eyebrow">CRM · SEARCH API IMPLEMENTATION</div><h2>Distinguish four important responses</h2><div class="subtitle">Lesson step 23 of 25</div></header>
+  <div class="slide-content"><p><strong>Show:</strong></p>
+<table><tr><th>Case</th><th>Example</th><th>HTTP status and body idea</th></tr><tr><td>Valid request, no match</td><td><code>?email=teacher.test</code></td><td><code>200</code>, <code>count: 0</code>, <code>results: []</code></td></tr><tr><td>Bad filter input</td><td><code>?dob_from=not-a-date</code></td><td><code>400</code>, <code>{&quot;date&quot;:&quot;Use YYYY-MM-DD for dob_from and dob_to.&quot;}</code></td></tr><tr><td>Start after end</td><td><code>?dob_from=2026-10-01&amp;dob_to=2026-09-30</code></td><td><code>400</code>, <code>{&quot;date&quot;:&quot;dob_from must be before or equal to dob_to.&quot;}</code></td></tr><tr><td>No Bearer token</td><td>Plain GET of the list</td><td><code>401</code>, authentication credentials not provided</td></tr></table>
+<div class="teacher"><span>Teacher explanation</span><p>A zero result is not an error; it is a successful search with no matches. An invalid filter is a client mistake, so the API explains it with <code>400</code>. A missing token is an authentication problem, so the API returns <code>401</code>. These distinctions help a frontend show the right message to a user.</p></div></div>
+  <footer><span>Django REST Framework · Registration API</span><span>24</span></footer>
+</section>
+<section class="slide lesson">
+  <div class="edge"></div>
+  <header><div class="eyebrow">CRM · SEARCH API IMPLEMENTATION</div><h2>Live teaching sequence</h2><div class="subtitle">Lesson step 24 of 25</div></header>
+  <div class="slide-content"><p><strong>Show the order to run in class:</strong></p>
+<ol><li>Start Docker PostgreSQL and Django. Keep the server terminal open.</li><li>Send <code>1_CRM login</code> in Postman; point out <code>200</code>, <code>access</code>, and the Post-response script.</li><li>Send <code>2_CRM Registration Search</code> with no checked Params; point out <code>count</code>, <code>results</code>, and the absence of <code>password</code>.</li><li>Check <code>search=Teacher</code>, then try the full and partial email values.</li><li>Check both September 2026 DOB bounds, then combine with <code>search=testcase</code>.</li><li>Use <code>page_size=3</code>, change <code>page</code>, and use <code>ordering=-id</code>.</li><li>Show one <code>400</code> invalid-date response and one <code>401</code> request without a valid token.</li></ol>
+<div class="teacher"><span>Teacher explanation</span><p>Before every Send, ask students to predict the status code, count, and first matching record. Then compare the prediction with the JSON. Keep the checked Params rows tidy; duplicated <code>email</code> or date rows can make the demonstration confusing. When finished, uncheck all Params and save the base request.</p></div></div>
+  <footer><span>Django REST Framework · Registration API</span><span>25</span></footer>
+</section>
+<section class="slide lesson">
+  <div class="edge"></div>
+  <header><div class="eyebrow">CRM · SEARCH API IMPLEMENTATION</div><h2>Current scope and next steps</h2><div class="subtitle">Lesson step 25 of 25</div></header>
+  <div class="slide-content"><p><strong>Show:</strong> The lesson provides a basic server-side Registration search API with JWT access, allowed search/order fields, exact and range filters, clear errors, safe response fields, and pagination. It is a useful foundation for a product API.</p>
+<div class="teacher"><span>Teacher explanation</span><p>The current <code>SearchFilter</code> uses simple partial matching. It does not rank the best match, fix spelling mistakes, or automatically make large searches fast. The HTML customer search box is still not connected to this API. The Bill API is not implemented. <code>write_only</code> keeps Registration passwords out of API responses, but the Registration model still stores them as plain text. These are future improvements, not features to claim as complete today.</p></div>
+<p><strong>Final student question:</strong> Which part of today&#x27;s code would you change to search another safe text field? Which part would you change to permit a new ordering field?</p></div>
+  <footer><span>Django REST Framework · Registration API</span><span>26</span></footer>
+</section>
+<section class="slide reference">
+  <div class="edge"></div>
+  <header><div class="eyebrow">CRM · SEARCH API IMPLEMENTATION</div><h2>Code reference: serializer and imports</h2><div class="subtitle">Teacher reference</div></header>
+  <div class="slide-content"><p><strong><code>crm/registration/serializers.py</code>:</strong></p>
+<pre class="code python"><code>class RegistrationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Registration
+        fields = [&#x27;id&#x27;, &#x27;name&#x27;, &#x27;email&#x27;, &#x27;password&#x27;, &#x27;date_of_birth&#x27;]
+        extra_kwargs = {&#x27;password&#x27;: {&#x27;write_only&#x27;: True}}</code></pre>
+<p><strong>Additional imports in <code>crm/registration/views.py</code>:</strong></p>
+<pre class="code python"><code>from rest_framework.filters import SearchFilter, OrderingFilter
+from rest_framework.pagination import PageNumberPagination
+from django.utils.dateparse import parse_date
+from rest_framework.exceptions import ValidationError</code></pre></div>
+  <footer><span>Django REST Framework · Registration API</span><span>27</span></footer>
+</section>
+<section class="slide reference">
+  <div class="edge"></div>
+  <header><div class="eyebrow">CRM · SEARCH API IMPLEMENTATION</div><h2>Code reference: ViewSet setup</h2><div class="subtitle">Teacher reference · matches the project</div></header>
+  <div class="slide-content"><pre class="code python"><code>class RegistrationPagination(PageNumberPagination):
+    page_size = 10
+    page_size_query_param = &#x27;page_size&#x27;
+    max_page_size = 50
+
+
+class RegistrationViewSet(viewsets.ModelViewSet):
+    queryset = Registration.objects.all()
+    serializer_class = RegistrationSerializer
+    permission_classes = [IsAuthenticated]
+    pagination_class = RegistrationPagination
+
+    filter_backends = [SearchFilter, OrderingFilter]
+    search_fields = [&#x27;name&#x27;, &#x27;email&#x27;]
+    ordering = [&#x27;id&#x27;]
+    ordering_fields = [&#x27;id&#x27;, &#x27;name&#x27;, &#x27;email&#x27;, &#x27;date_of_birth&#x27;]
+</code></pre></div>
+  <footer><span>Django REST Framework · Registration API</span><span>28</span></footer>
+</section>
+<section class="slide reference">
+  <div class="edge"></div>
+  <header><div class="eyebrow">CRM · SEARCH API IMPLEMENTATION</div><h2>Code reference: exact email and DOB filters</h2><div class="subtitle">Teacher reference · matches the project</div></header>
+  <div class="slide-content"><pre class="code python"><code>    def get_queryset(self):
+        queryset = super().get_queryset()
+
+        email = self.request.query_params.get(&#x27;email&#x27;)
+        if email:
+            queryset = queryset.filter(email__iexact=email)
+
+        from_text = self.request.query_params.get(&#x27;dob_from&#x27;)
+        to_text = self.request.query_params.get(&#x27;dob_to&#x27;)
+
+        try:
+            from_date = parse_date(from_text) if from_text else None
+            to_date = parse_date(to_text) if to_text else None
+        except ValueError:
+            raise ValidationError({&#x27;date&#x27;: &#x27;Use YYYY-MM-DD for dob_from and dob_to.&#x27;})
+
+        if (from_text and from_date is None) or (to_text and to_date is None):
+            raise ValidationError({&#x27;date&#x27;: &#x27;Use YYYY-MM-DD for dob_from and dob_to.&#x27;})
+
+        if from_date and to_date and from_date &gt; to_date:
+            raise ValidationError({&#x27;date&#x27;: &#x27;dob_from must be before or equal to dob_to.&#x27;})
+
+        if from_date:
+            queryset = queryset.filter(date_of_birth__gte=from_date)
+        if to_date:
+            queryset = queryset.filter(date_of_birth__lte=to_date)
+
+        return queryset</code></pre></div>
+  <footer><span>Django REST Framework · Registration API</span><span>29</span></footer>
+</section>
+<section class="slide reference">
+  <div class="edge"></div>
+  <header><div class="eyebrow">CRM · SEARCH API IMPLEMENTATION</div><h2>Postman request cheat sheet · 1</h2><div class="subtitle">Teacher reference · exact request URLs</div></header>
+  <div class="slide-content"><p>Every Registration GET uses Bearer Token <code>{{access_token}}</code>. Send login first.</p>
+<table><tr><th>Purpose</th><th>Method and URL</th><th>Expected live result</th></tr><tr><td>Full list</td><td><code>GET http://127.0.0.1:8001/account/api/registrations/</code></td><td><code>200</code>, count 9; password absent</td></tr><tr><td>Partial text</td><td><code>GET http://127.0.0.1:8001/account/api/registrations/?search=Teacher</code></td><td><code>200</code>, Teacher Test</td></tr><tr><td>Exact email</td><td><code>GET http://127.0.0.1:8001/account/api/registrations/?email=teacher.test@example.com</code></td><td><code>200</code>, count 1</td></tr><tr><td>Date range</td><td><code>GET http://127.0.0.1:8001/account/api/registrations/?dob_from=2026-09-01&amp;dob_to=2026-09-30</code></td><td><code>200</code>, count 3</td></tr></table></div>
+  <footer><span>Django REST Framework · Registration API</span><span>30</span></footer>
+</section>
+<section class="slide reference">
+  <div class="edge"></div>
+  <header><div class="eyebrow">CRM · SEARCH API IMPLEMENTATION</div><h2>Postman request cheat sheet · 2</h2><div class="subtitle">Teacher reference · exact request URLs</div></header>
+  <div class="slide-content"><p>Every Registration GET uses Bearer Token <code>{{access_token}}</code>. Send login first.</p>
+<table><tr><th>Purpose</th><th>Method and URL</th><th>Expected live result</th></tr><tr><td>Combined</td><td><code>GET http://127.0.0.1:8001/account/api/registrations/?search=testcase&amp;dob_from=2026-09-01&amp;dob_to=2026-09-30</code></td><td><code>200</code>, testcase15</td></tr><tr><td>Paged</td><td><code>GET http://127.0.0.1:8001/account/api/registrations/?page_size=3&amp;page=2</code></td><td><code>200</code>, three results from page 2</td></tr><tr><td>Descending</td><td><code>GET http://127.0.0.1:8001/account/api/registrations/?ordering=-id&amp;page_size=3&amp;page=1</code></td><td><code>200</code>, IDs 14, 13, 10</td></tr><tr><td>Bad date</td><td><code>GET http://127.0.0.1:8001/account/api/registrations/?dob_from=not-a-date</code></td><td><code>400</code>, date explanation</td></tr></table></div>
+  <footer><span>Django REST Framework · Registration API</span><span>31</span></footer>
+</section>
+<section class="slide reference">
+  <div class="edge"></div>
+  <header><div class="eyebrow">CRM · SEARCH API IMPLEMENTATION</div><h2>Sources and course note</h2><div class="subtitle">Teacher reference</div></header>
+  <div class="slide-content"><ul><li><a href="https://www.django-rest-framework.org/api-guide/filtering/">DRF filtering: `SearchFilter` and `OrderingFilter`</a></li><li><a href="https://www.django-rest-framework.org/api-guide/pagination/">DRF `PageNumberPagination`</a></li><li><a href="https://learning.postman.com/docs/use/send-requests/create-requests/parameters/">Postman: Params</a></li><li><a href="https://learning.postman.com/docs/tests-and-scripts/write-scripts/test-scripts/">Postman: Post-response scripts</a></li><li><a href="https://learning.postman.com/docs/tests-and-scripts/write-scripts/postman-sandbox-reference/pm-variables/">Postman: collection variables</a></li></ul></div>
+  <footer><span>Django REST Framework · Registration API</span><span>32</span></footer>
+</section><script>
+document.addEventListener('DOMContentLoaded', () => {
+  document.querySelectorAll('.slide').forEach(slide => {
+    const content = slide.querySelector('.slide-content');
+    for (const level of ['dense-1', 'dense-2', 'dense-3']) {
+      if (content.scrollHeight <= content.clientHeight + 1) break;
+      slide.classList.add(level);
+    }
+    if (content.scrollHeight > content.clientHeight + 1) slide.dataset.overflow = 'true';
+  });
+});
+</script></body></html>

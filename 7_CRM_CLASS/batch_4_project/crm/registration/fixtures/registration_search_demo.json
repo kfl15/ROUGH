@@ -1,0 +1,11 @@
+[
+  {"model": "registration.registration", "pk": 2, "fields": {"name": "Teacher Test", "email": "teacher.test@example.com", "password": "demo-only", "date_of_birth": null}},
+  {"model": "registration.registration", "pk": 3, "fields": {"name": "QA One", "email": "qa1@example.com", "password": "demo-only", "date_of_birth": null}},
+  {"model": "registration.registration", "pk": 5, "fields": {"name": "testcase 4", "email": "testcase4@example.com", "password": "demo-only", "date_of_birth": "1996-12-12"}},
+  {"model": "registration.registration", "pk": 6, "fields": {"name": "QA Two", "email": "qa2@example.com", "password": "demo-only", "date_of_birth": "2009-02-04"}},
+  {"model": "registration.registration", "pk": 8, "fields": {"name": "testcase 5", "email": "testcase5@example.com", "password": "demo-only", "date_of_birth": null}},
+  {"model": "registration.registration", "pk": 9, "fields": {"name": "QA Three", "email": "qa3@example.com", "password": "demo-only", "date_of_birth": "2026-09-30"}},
+  {"model": "registration.registration", "pk": 10, "fields": {"name": "testcase 10", "email": "testcase10@example.com", "password": "demo-only", "date_of_birth": "2027-02-01"}},
+  {"model": "registration.registration", "pk": 13, "fields": {"name": "QA Thirteen", "email": "qa13@example.com", "password": "demo-only", "date_of_birth": "2026-09-01"}},
+  {"model": "registration.registration", "pk": 14, "fields": {"name": "testcase15", "email": "testcase15@example.com", "password": "demo-only", "date_of_birth": "2026-09-04"}}
+]

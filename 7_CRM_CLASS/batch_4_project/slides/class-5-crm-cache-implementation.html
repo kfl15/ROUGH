@@ -1,0 +1,293 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Class 5 - Cache in Our Django CRM</title>
+  <style>
+    @page { size: 13.333in 7.5in; margin: 0; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: #dce3e8; color: #172026; font-family: "Liberation Sans", Arial, sans-serif; }
+    .slide { position: relative; width: 13.333in; height: 7.5in; padding: .56in .72in; overflow: hidden; page-break-after: always; background: #f7f8f5; }
+    .slide:last-child { page-break-after: auto; }
+    .slide::before { content: ""; position: absolute; left: 0; top: 0; width: .16in; height: 100%; background: #e75b3b; }
+    .num { position: absolute; right: .45in; bottom: .25in; color: #66727a; font-size: 16px; }
+    .tag { color: #a63b24; font-size: 18px; font-weight: 700; text-transform: uppercase; }
+    h1 { margin: .13in 0 .2in; font-size: 46px; line-height: 1.12; }
+    h2 { margin: .08in 0 .28in; font-size: 34px; line-height: 1.15; }
+    h3 { margin: 0 0 .1in; font-size: 22px; }
+    p, li { font-size: 21px; line-height: 1.32; }
+    ul, ol { margin: .08in 0; padding-left: .32in; }
+    li { margin: .09in 0; }
+    .lead { max-width: 10.8in; font-size: 27px; }
+    .accent { color: #b43c24; font-weight: 700; }
+    .muted { color: #5a6870; }
+    .small { font-size: 15px; line-height: 1.3; }
+    .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: .3in; }
+    .grid3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: .2in; }
+    .box { border: 2px solid #c7d0d5; border-top: 7px solid #147d83; padding: .2in; background: #fff; min-height: 1.25in; }
+    .box.orange { border-top-color: #e75b3b; }
+    .box.yellow { border-top-color: #e7b740; }
+    .flow { display: flex; align-items: center; justify-content: center; gap: .08in; margin-top: .28in; }
+    .step { min-width: 1.35in; padding: .18in .08in; background: #fff; border: 2px solid #147d83; text-align: center; font-size: 17px; font-weight: 700; }
+    .step.db { border-color: #e75b3b; }
+    .step.cache { border-color: #e7b740; background: #fff9df; }
+    .arrow { font-size: 27px; color: #e75b3b; }
+    code, pre { font-family: "DejaVu Sans Mono", monospace; }
+    pre { margin: .1in 0; padding: .15in .2in; background: #172026; color: #eef4f2; font-size: 16px; line-height: 1.27; white-space: pre-wrap; }
+    table { width: 100%; border-collapse: collapse; background: #fff; }
+    th, td { padding: .1in .13in; border: 1px solid #bdc8cd; text-align: left; font-size: 18px; }
+    th { background: #147d83; color: #fff; }
+    .title { display: flex; flex-direction: column; justify-content: center; }
+    .title h1 { font-size: 55px; max-width: 9.6in; }
+    .title .band { position: absolute; right: 0; top: 0; width: 2.2in; height: 100%; background: #147d83; }
+    .title .band::after { content: "CRM"; position: absolute; top: 2.62in; left: .35in; color: #fff; font-size: 52px; font-weight: 700; transform: rotate(90deg); }
+    .file { color: #ffd36b; }
+    @media screen { .slide { margin: 22px auto; box-shadow: 0 6px 24px #0003; } }
+    @media print { body { background: transparent; } }
+  </style>
+</head>
+<body>
+  <section class="slide title">
+    <div class="tag">Class 5</div>
+    <h1>Cache in Our Django CRM</h1>
+    <p class="lead">The exact files, code flow, live demo, and the next directions after this basic implementation.</p>
+    <div class="band"></div><div class="num">1</div>
+  </section>
+
+  <section class="slide">
+    <div class="tag">Today</div>
+    <h2>What did we add?</h2>
+    <div class="grid3">
+      <div class="box"><h3>One cache type</h3><p>Django <strong>LocMemCache</strong>: temporary memory inside Django.</p></div>
+      <div class="box orange"><h3>One cached value</h3><p><code>customer_list</code>: the list shown on the customer page.</p></div>
+      <div class="box yellow"><h3>One visible proof</h3><p>The browser displays whether the page used database or cache.</p></div>
+    </div>
+    <p class="lead">Goal: see a cache miss first, then a cache hit after refresh.</p>
+    <div class="num">2</div>
+  </section>
+
+  <section class="slide">
+    <div class="tag">Before cache</div>
+    <h2>What did the customer page do before?</h2>
+    <pre><span class="file">crm/registration/views.py</span>
+
+data = Registration.objects.all()</pre>
+    <div class="flow">
+      <div class="step">Open customer page</div><div class="arrow">&#8594;</div>
+      <div class="step db">PostgreSQL query</div><div class="arrow">&#8594;</div>
+      <div class="step">Show customer list</div>
+    </div>
+    <p class="lead">Every refresh repeated the database query, even if no customer data changed.</p>
+    <div class="num">3</div>
+  </section>
+
+  <section class="slide">
+    <div class="tag">Our decision</div>
+    <h2>We chose local-memory application cache</h2>
+    <div class="grid2">
+      <div class="box"><h3>LocMemCache</h3><p>A built-in Django cache stored in this Django process’s RAM.</p></div>
+      <div class="box orange"><h3>Why for this class?</h3><p>Simple setup, fast enough to demonstrate, and no new service to install.</p></div>
+    </div>
+    <p class="lead">This is an <strong>application cache</strong>, not a browser cache or CDN cache.</p>
+    <div class="num">4</div>
+  </section>
+
+  <section class="slide">
+    <div class="tag">No new package</div>
+    <h2>We used Django’s built-in cache support</h2>
+    <pre>from django.core.cache import cache</pre>
+    <div class="grid2">
+      <div class="box"><h3>What we did not add</h3><p>No Redis, Memcached server, Docker container, or package in <code>requirements.txt</code>.</p></div>
+      <div class="box orange"><h3>Why that matters</h3><p>Students can focus first on key, value, hit, miss, TTL, and clearing old data.</p></div>
+    </div>
+    <p class="small muted">Django itself provides <code>cache.get()</code>, <code>cache.set()</code>, and <code>cache.delete()</code>.</p>
+    <div class="num">5</div>
+  </section>
+
+  <section class="slide">
+    <div class="tag">Change map</div>
+    <h2>What changed, and where?</h2>
+    <table>
+      <tr><th>File</th><th>Change</th><th>Why</th></tr>
+      <tr><td><code>crm/settings.py</code></td><td><code>CACHES</code> configuration</td><td>Choose LocMemCache and a 60-second TTL.</td></tr>
+      <tr><td><code>registration/views.py</code></td><td>Get/set/delete cache code</td><td>Reuse the customer list instead of repeatedly querying PostgreSQL.</td></tr>
+      <tr><td><code>templates/customer.html</code></td><td>“Cache demo” status message</td><td>Make hit and miss visible in the browser.</td></tr>
+    </table>
+    <p class="lead">No model, migration, database-table, or external library change was needed.</p>
+    <div class="num">6</div>
+  </section>
+
+  <section class="slide">
+    <div class="tag">Settings</div>
+    <h2>Tell Django which cache to use</h2>
+    <pre><span class="file">crm/crm/settings.py</span>
+
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        'LOCATION': 'crm-class-cache',
+        'TIMEOUT': 60,
+    }
+}</pre>
+    <div class="grid3">
+      <div class="box"><h3>BACKEND</h3><p>The cache engine: local memory.</p></div>
+      <div class="box orange"><h3>LOCATION</h3><p>A name for this memory store.</p></div>
+      <div class="box yellow"><h3>TIMEOUT</h3><p>Default lifetime: 60 seconds.</p></div>
+    </div>
+    <div class="num">7</div>
+  </section>
+
+  <section class="slide">
+    <div class="tag">How Django reaches the code</div>
+    <h2>URL &#8594; view function &#8594; cache</h2>
+    <pre><span class="file">crm/registration/urls.py</span>
+
+path('customer/', v.show_customer, name='customer')</pre>
+    <div class="flow">
+      <div class="step">Browser opens<br><code>/account/customer/</code></div><div class="arrow">&#8594;</div>
+      <div class="step">Django matches<br>the URL</div><div class="arrow">&#8594;</div>
+      <div class="step">Django calls<br><code>show_customer()</code></div><div class="arrow">&#8594;</div>
+      <div class="step cache">View asks cache</div>
+    </div>
+    <p class="lead">The user does not write a cache key. The view code chooses the key.</p>
+    <div class="num">8</div>
+  </section>
+
+  <section class="slide">
+    <div class="tag">The key and the question</div>
+    <h2>Where does Django ask cache?</h2>
+    <pre><span class="file">crm/registration/views.py</span>
+
+cache_key = 'customer_list'
+data = cache.get(cache_key)</pre>
+    <div class="grid2">
+      <div class="box"><h3>Key</h3><p><code>customer_list</code> is the label for this cached customer-list value.</p></div>
+      <div class="box orange"><h3>get()</h3><p>It asks: “Do you have a value saved with this exact key?”</p></div>
+    </div>
+    <p class="lead">Cache does not use intent detection here. It receives the exact key written by the developer.</p>
+    <div class="num">9</div>
+  </section>
+
+  <section class="slide">
+    <div class="tag">Cache miss</div>
+    <h2>If no saved value exists</h2>
+    <pre>if data is None:
+    data = list(Registration.objects.values(
+        'id', 'name', 'email', 'date_of_birth'
+    ))
+    cache.set(cache_key, data, timeout=60)</pre>
+    <div class="flow">
+      <div class="step cache">No value for<br><code>customer_list</code></div><div class="arrow">&#8594;</div>
+      <div class="step db">Read PostgreSQL</div><div class="arrow">&#8594;</div>
+      <div class="step">Save data for<br>60 seconds</div>
+    </div>
+    <p class="small muted">This is a <strong>cache miss</strong>. We save only safe display fields; the plain-text password field is not cached.</p>
+    <div class="num">10</div>
+  </section>
+
+  <section class="slide">
+    <div class="tag">Cache hit</div>
+    <h2>If cache already has the value</h2>
+    <pre>else:
+    cache_status = 'Fast memory used: cache hit'</pre>
+    <div class="flow">
+      <div class="step">Refresh customer page</div><div class="arrow">&#8594;</div>
+      <div class="step cache">Find<br><code>customer_list</code></div><div class="arrow">&#8594;</div>
+      <div class="step">Use saved customer data</div><div class="arrow">&#8594;</div>
+      <div class="step">No PostgreSQL query</div>
+    </div>
+    <p class="lead">This is a <strong>cache hit</strong>: fast memory returns the temporary copy.</p>
+    <div class="num">11</div>
+  </section>
+
+  <section class="slide">
+    <div class="tag">Keep data fresh</div>
+    <h2>Clear cache after customer changes</h2>
+    <pre>cache.delete('customer_list')</pre>
+    <div class="grid3">
+      <div class="box"><h3>Create</h3><p>New customer added &#8594; old list is no longer complete.</p></div>
+      <div class="box orange"><h3>Edit</h3><p>Customer changed &#8594; cached name/email may be old.</p></div>
+      <div class="box yellow"><h3>Delete</h3><p>Customer removed &#8594; cached list may still show them.</p></div>
+    </div>
+    <p class="lead">Deleting the old cache key makes the next request fetch and save fresh database data.</p>
+    <div class="num">12</div>
+  </section>
+
+  <section class="slide">
+    <div class="tag">Live demo</div>
+    <h2>What should students see?</h2>
+    <table>
+      <tr><th>Action</th><th>Browser message</th><th>What happened?</th></tr>
+      <tr><td>Open customer page first time</td><td>Database used: cache miss</td><td>Read PostgreSQL, then save cache.</td></tr>
+      <tr><td>Refresh within 60 seconds</td><td>Fast memory used: cache hit</td><td>Read the cached copy.</td></tr>
+      <tr><td>Wait 60 seconds and refresh</td><td>Database used: cache miss</td><td>TTL expired; save a fresh copy.</td></tr>
+      <tr><td>Edit or delete a customer</td><td>Database used: cache miss</td><td><code>cache.delete()</code> cleared the old copy.</td></tr>
+    </table>
+    <p class="small muted">A Django restart also clears this local-memory cache. That is expected.</p>
+    <div class="num">13</div>
+  </section>
+
+  <section class="slide">
+    <div class="tag">Trade-off</div>
+    <h2>Why not use this exact cache forever?</h2>
+    <div class="grid2">
+      <div class="box"><h3>Good for today</h3><ul><li>Built into Django</li><li>No external service</li><li>Fast and easy to understand</li></ul></div>
+      <div class="box orange"><h3>Limits</h3><ul><li>Disappears after restart</li><li>Each Django process has its own copy</li><li>Not shared across multiple servers</li></ul></div>
+    </div>
+    <p class="lead">Next production-level direction: a shared cache such as Redis or Memcached.</p>
+    <div class="num">14</div>
+  </section>
+
+  <section class="slide">
+    <div class="tag">Future direction</div>
+    <h2>If we want to cache images</h2>
+    <p class="lead">Do <strong>not</strong> put large uploaded image files inside today’s small LocMemCache.</p>
+    <div class="flow">
+      <div class="step">Store original image<br>in media/object storage</div><div class="arrow">&#8594;</div>
+      <div class="step">Create a small<br>thumbnail</div><div class="arrow">&#8594;</div>
+      <div class="step cache">Use a stable image URL</div><div class="arrow">&#8594;</div>
+      <div class="step">Browser/CDN caches<br>the image file</div>
+    </div>
+    <div class="grid2">
+      <div class="box"><h3>When image changes</h3><p>Use a new versioned URL, or clear/purge the CDN copy.</p></div>
+      <div class="box orange"><h3>What our app could cache</h3><p>Small image metadata, thumbnail URL, or repeated database result—not a huge original image.</p></div>
+    </div>
+    <div class="num">15</div>
+  </section>
+
+  <section class="slide">
+    <div class="tag">Future direction</div>
+    <h2>Similarity search</h2>
+    <p class="lead"><strong>Exact-key cache</strong> answers: “Do you have <code>customer_list</code>?”</p>
+    <p class="lead"><strong>Similarity search</strong> answers: “Which images, products, or documents are most similar to this one?”</p>
+    <div class="flow">
+      <div class="step">Image/text input</div><div class="arrow">&#8594;</div>
+      <div class="step">Embedding model creates<br>a number vector</div><div class="arrow">&#8594;</div>
+      <div class="step">Vector database finds<br>nearest vectors</div><div class="arrow">&#8594;</div>
+      <div class="step cache">Optionally cache repeated<br>search results</div>
+    </div>
+    <p class="small muted">A possible future PostgreSQL tool is <strong>pgvector</strong>. This is a separate feature from today’s simple cache, not a replacement for the database.</p>
+    <div class="num">16</div>
+  </section>
+
+  <section class="slide">
+    <div class="tag">Remember</div>
+    <h2>Today’s CRM cache flow</h2>
+    <div class="flow">
+      <div class="step">URL calls<br><code>show_customer()</code></div><div class="arrow">&#8594;</div>
+      <div class="step">Ask key:<br><code>customer_list</code></div><div class="arrow">&#8594;</div>
+      <div class="step cache">Hit? Use fast copy</div><div class="arrow">&#8594;</div>
+      <div class="step db">Miss? Read DB, save copy</div>
+    </div>
+    <ul>
+      <li><strong>Key:</strong> <code>customer_list</code></li>
+      <li><strong>Value:</strong> safe customer-list data</li>
+      <li><strong>TTL:</strong> 60 seconds</li>
+      <li><strong>Freshness:</strong> clear the key after create, edit, or delete</li>
+    </ul>
+    <p class="small muted">Sources: Django cache framework — docs.djangoproject.com/en/6.1/topics/cache/ &nbsp;|&nbsp; pgvector — github.com/pgvector/pgvector</p>
+    <div class="num">17</div>
+  </section>
+</body>
+</html>

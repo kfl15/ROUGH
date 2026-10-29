@@ -1,0 +1,324 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Class 6 - Search API and Filters in Our Django CRM</title>
+<style>
+@page { size: 13.333in 7.5in; margin: 0; }
+* { box-sizing: border-box; }
+body { margin: 0; background: #dce3e8; color: #18242a; font-family: "Liberation Sans", Arial, sans-serif; }
+.slide { position: relative; display: flow-root; width: 13.333in; height: 7.5in; padding: .56in .72in; overflow: hidden; page-break-after: always; background: #f7f8f5; }
+.slide:last-child { page-break-after: auto; }
+.slide::before { content: ""; position: absolute; left: 0; top: 0; width: .16in; height: 100%; background: #e75b3b; }
+.title { display: flex; flex-direction: column; justify-content: center; padding-right: 2.55in; }
+.title .band { position: absolute; top: 0; right: 0; width: 2.18in; height: 100%; background: #147d83; }
+.title .band::after { content: "CRM"; position: absolute; top: 2.55in; left: .35in; transform: rotate(90deg); color: white; font-size: 52px; font-weight: 700; }
+.tag { display: block; margin-bottom: .09in; color: #a63b24; font-size: 18px; font-weight: 700; text-transform: uppercase; }
+h1 { margin: .07in 0 .25in; font-size: 52px; line-height: 1.1; }
+h2 { margin: .05in 0 .27in; font-size: 34px; line-height: 1.12; }
+h3 { margin: 0 0 .09in; font-size: 22px; }
+p, li { font-size: 21px; line-height: 1.32; }
+p { margin: .13in 0 .18in; }
+ul, ol { margin: .12in 0; padding-left: .33in; }
+li { margin: .13in 0; }
+.lead { font-size: 26px; line-height: 1.3; }
+.small { font-size: 16px; line-height: 1.33; }
+.muted { color: #5c6970; }
+.num { position: absolute; right: .45in; bottom: .25in; color: #69767b; font-size: 16px; }
+.cards { display: grid; gap: .25in; margin: .18in 0 .26in; }
+.cards.two { grid-template-columns: repeat(2, 1fr); }
+.cards.three { grid-template-columns: repeat(3, 1fr); }
+.card { min-height: 1.55in; padding: .2in; border: 2px solid #c5d0d2; border-top: 7px solid #147d83; background: #fff; }
+.card.orange { border-top-color: #e75b3b; }
+.card.yellow { border-top-color: #e7b740; }
+.card p { margin: .08in 0; }
+.callout { margin: .22in 0; padding: .16in .22in; border-left: 7px solid #147d83; background: #fff; font-size: 21px; line-height: 1.3; }
+.notice { margin: .08in 0 .22in; padding: .15in .22in; border-left: 7px solid #e75b3b; background: #fff; font-size: 20px; }
+.query { margin: .19in 0; padding: .19in .24in; background: #18242a; color: #eef4f2; font: 20px/1.35 "DejaVu Sans Mono", monospace; overflow-wrap: anywhere; }
+.smallquery { font-size: 15px; padding: .13in; }
+code { font-family: "DejaVu Sans Mono", monospace; font-size: .8em; }
+table { width: 100%; border-collapse: collapse; background: #fff; margin: .15in 0; }
+th, td { padding: .12in .14in; border: 1px solid #becbce; text-align: left; font-size: 18px; line-height: 1.26; }
+th { background: #147d83; color: #fff; }
+.flow { display: flex; justify-content: center; align-items: center; gap: .1in; margin: .29in 0; }
+.step { min-width: 1.75in; padding: .18in .1in; border: 2px solid #147d83; background: #fff; text-align: center; font-size: 18px; font-weight: 700; }
+.step.orange { border-color: #e75b3b; }
+.arrow { color: #e75b3b; font-size: 28px; }
+a { color: #0b676d; }
+@media screen { .slide { margin: 22px auto; box-shadow: 0 6px 24px #0003; } }
+@media print { body { background: transparent; } }
+</style>
+</head>
+<body>
+<section class="slide title">
+  <div class="tag">Class 6 · Theory</div>
+  <h1>Search API and Filters<br>in Our Django CRM</h1>
+  <p class="lead">How an API finds the right customer or bill using the fields this project already has.</p>
+  <p class="small">Example queries in this deck describe planned behavior. Search has not been implemented yet.</p>
+  <div class="band"></div><div class="num">1</div>
+</section>
+
+<section class="slide ">
+  <div class="tag">Today’s lesson</div>
+  <h2>The questions we will answer</h2>
+  <div class="cards three">
+  <div class="card"><h3>Search API</h3><p>How does a client ask the Registration API for matching customers?</p></div>
+  <div class="card orange"><h3>Text search</h3><p>When should we use a partial name, a name prefix, or an exact email?</p></div>
+  <div class="card yellow"><h3>Field filters</h3><p>How do dates, bill status, amount, and customer ID narrow a result?</p></div>
+</div>
+<p class="lead">Today is about expected behavior. The code lesson comes after we agree on the rules.</p>
+  <div class="num">2</div>
+</section>
+
+<section class="slide ">
+  <div class="tag">Our actual project</div>
+  <h2>What can we search today?</h2>
+  <div class="cards two">
+  <div class="card"><h3>Registration</h3><p><code>name</code>, <code>email</code>, and <code>date_of_birth</code> are useful for customer search. The password field is not.</p></div>
+  <div class="card orange"><h3>Bill</h3><p><code>bill_id</code>, <code>bill_status</code>, <code>bill_amount</code>, <code>created_at</code>, and <code>customer_id</code> support precise filters.</p></div>
+</div>
+<p>The JWT-protected <code>/account/api/registrations/</code> endpoint lists customers, but has no search configuration. The customer page has a visual search box that does nothing yet. There is no Bill API in the router.</p>
+  <div class="num">3</div>
+</section>
+
+<section class="slide ">
+  <div class="tag">Why we need it</div>
+  <h2>The current API makes the client search the whole list</h2>
+  <p>Imagine 50,000 customers and a user trying to find <strong>Rahim Ahmed</strong>. Today the Registration API returns the normal list even if the client sends <code>?search=rahim</code>. The client must download or page through many records and search them itself.</p>
+<div class="flow"><div class="step">User asks for Rahim</div><div class="arrow">→</div><div class="step orange">Server returns all</div><div class="arrow">→</div><div class="step">Client searches</div></div>
+<div class="callout">Our target: the server finds matching customers first, then sends a small, useful JSON result.</div>
+<p class="small muted">A Django HTML view can also filter data. We teach the API form because this class already uses DRF and JSON clients.</p>
+  <div class="num">4</div>
+</section>
+
+<section class="slide ">
+  <div class="tag">Core idea</div>
+  <h2>A search API is a list API with a question</h2>
+  <p class="lead">A client sends a <strong>GET request</strong> with a search term. The server returns matching records as JSON.</p>
+<div class="query">GET /account/api/registrations/?search=rahim</div>
+<p>The path chooses the Registration collection. <code>search=rahim</code> asks for customers whose allowed text fields match “rahim”. The same endpoint can still return the full list when no search term is supplied.</p>
+<div class="callout">Current behavior: this ViewSet ignores <code>search</code>, so the example URL still returns the normal list.</div>
+  <div class="num">5</div>
+</section>
+
+<section class="slide ">
+  <div class="tag">How it is used</div>
+  <h2>From the customer search box to matching JSON</h2>
+  <div class="flow"><div class="step">Type “rahim”</div><div class="arrow">→</div><div class="step orange">GET + JWT</div><div class="arrow">→</div><div class="step">DRF filters</div><div class="arrow">→</div><div class="step orange">Show results</div></div>
+<p>The browser can send <code>GET /account/api/registrations/?search=rahim</code> with its access token. The ViewSet filters the allowed records, the serializer returns JSON, and the page displays the matching names. The current visual search box must be connected to this flow.</p>
+<pre class="query">Proposed response after safe pagination:
+{ "count": 1, "results": [
+  { "id": 1, "name": "Rahim Ahmed", "email": "rahim@example.com" }
+] }</pre>
+<p class="small muted">This is a shortened target response. It is not the current API output.</p>
+  <div class="num">6</div>
+</section>
+
+<section class="slide ">
+  <div class="tag">Production-grade basics</div>
+  <h2>A small implementation can still be credible</h2>
+  <div class="cards three">
+  <div class="card"><h3>Correct matches</h3><p>Search only allowed fields. Exact email and date filters follow clear rules. Invalid input gets an error.</p></div>
+  <div class="card orange"><h3>Safe access</h3><p>Keep JWT permission. Do not search or return passwords or secret bill codes.</p></div>
+  <div class="card yellow"><h3>Predictable results</h3><p>Use stable ordering and pagination. Test a match, no match, invalid input, and no token.</p></div>
+</div>
+<p>Measure slow queries before choosing an index. These basics teach how a product endpoint is built without needing a separate search engine.</p>
+  <div class="num">7</div>
+</section>
+
+<section class="slide ">
+  <div class="tag">Read a URL</div>
+  <h2>The question mark and ampersand</h2>
+  <div class="query">/account/api/registrations/?search=rah&amp;born_from=1990-01-01</div>
+<div class="cards two">
+  <div class="card"><h3><code>?</code> begins the query</h3><p>Everything before it identifies the API resource. Everything after it gives optional choices.</p></div>
+  <div class="card orange"><h3><code>&amp;</code> adds another choice</h3><p>The request carries both a text search and a birth-date filter. We will define how those conditions combine.</p></div>
+</div>
+<p class="small muted">This is a proposed request format. Query parameter names are part of the API design we will choose before coding.</p>
+  <div class="num">8</div>
+</section>
+
+<section class="slide ">
+  <div class="tag">Sample customers</div>
+  <h2>Three records for our class exercises</h2>
+  <table>
+  <tr><th>ID</th><th>Name</th><th>Email</th><th>Date of birth</th></tr>
+  <tr><td>1</td><td>Rahim Ahmed</td><td>rahim@example.com</td><td>1996-04-12</td></tr>
+  <tr><td>2</td><td>Rahat Islam</td><td>rahat@example.com</td><td>2000-07-22</td></tr>
+  <tr><td>3</td><td>Ayesha Rahman</td><td>ayesha@example.com</td><td>1999-01-15</td></tr>
+</table>
+<p class="lead">These are fictional values using real <code>Registration</code> fields. We will predict results from this table before discussing code.</p>
+  <div class="num">9</div>
+</section>
+
+<section class="slide ">
+  <div class="tag">Three different jobs</div>
+  <h2>Search, filter, and ordering</h2>
+  <div class="cards three">
+  <div class="card"><h3>Search</h3><p>Which customer names contain <strong>rah</strong>?</p></div>
+  <div class="card orange"><h3>Filter</h3><p>Which customers were born before <strong>2000</strong>?</p></div>
+  <div class="card yellow"><h3>Ordering</h3><p>Should the matching customers appear by name or ID?</p></div>
+</div>
+<p class="lead">Search and filters decide which records remain. Ordering only arranges those records. Pagination can then show one manageable page.</p>
+  <div class="num">10</div>
+</section>
+
+<section class="slide ">
+  <div class="tag">Text search 1</div>
+  <h2>Contains: find text anywhere in a name</h2>
+  <div class="query">Planned request: ?search=rah</div>
+<p>If we search names with a case-insensitive <strong>contains</strong> rule, all three sample customers match: <strong>Rahim</strong> Ahmed, <strong>Rahat</strong> Islam, and Ayesha <strong>Rah</strong>man.</p>
+<div class="callout">The user does not need to remember the complete name or whether “rah” begins the first name or surname.</div>
+<p class="small muted">DRF <code>SearchFilter</code> uses case-insensitive contains matching by default when configured for text fields.</p>
+  <div class="num">11</div>
+</section>
+
+<section class="slide ">
+  <div class="tag">Text search 2</div>
+  <h2>Starts with: narrow the name list</h2>
+  <div class="query">Search names that start with: rah</div>
+<p><strong>Rahim Ahmed</strong> and <strong>Rahat Islam</strong> match because their names begin with “rah”. <strong>Ayesha Rahman</strong> does not match this rule because her complete name begins with “Ayesha”.</p>
+<div class="callout">A prefix rule is useful when the user knows the beginning of the name. It answers a different question from “contains”.</div>
+  <div class="num">12</div>
+</section>
+
+<section class="slide ">
+  <div class="tag">Text search 3</div>
+  <h2>Exact email: identify one customer</h2>
+  <div class="query">Planned request: ?email=rahim@example.com</div>
+<p>The complete email should match <strong>Rahim Ahmed</strong> only. An email address is a specific identifier. If one character is wrong, the API should not guess which customer to edit or bill.</p>
+<div class="callout">This is a field filter with an exact rule. It is different from a general <code>?search=</code> term that checks several text fields.</div>
+  <div class="num">13</div>
+</section>
+
+<section class="slide ">
+  <div class="tag">DRF search tool</div>
+  <h2>What does SearchFilter provide?</h2>
+  <p>DRF has a built-in <strong>SearchFilter</strong>. After we configure it on the Registration ViewSet and name the allowed fields, it can read a single <code>search</code> query parameter and match text in those fields.</p>
+<div class="cards two">
+  <div class="card"><h3>It can do</h3><p>Case-insensitive partial matches by default. It can also use configured starts-with or exact lookups.</p></div>
+  <div class="card orange"><h3>It does not do automatically</h3><p>Typo correction, exact-first relevance ranking, date ranges, or amount ranges.</p></div>
+</div>
+<p class="small muted">We will choose <code>name</code> and <code>email</code> deliberately; sensitive fields do not belong in search.</p>
+  <div class="num">14</div>
+</section>
+
+<section class="slide ">
+  <div class="tag">Customer filters</div>
+  <h2>Filter by an exact date or a range</h2>
+  <div class="cards two">
+  <div class="card"><h3>Exact date</h3><div class="query smallquery">?date_of_birth=1996-04-12</div><p>From our sample table, Rahim is the only match.</p></div>
+  <div class="card orange"><h3>Date range</h3><div class="query smallquery">?born_from=1990-01-01<br>&amp;born_to=1999-12-31</div><p>Rahim and Ayesha match. Rahat was born in 2000.</p></div>
+</div>
+<p>Before implementation, we must decide whether range boundaries are included and what response an invalid date should produce.</p>
+  <div class="num">15</div>
+</section>
+
+<section class="slide ">
+  <div class="tag">Bill filters</div>
+  <h2>Use the Bill fields when a Bill API exists</h2>
+  <div class="notice">The current router has no <code>/account/api/bills/</code> endpoint. Every request below is a future example.</div>
+<table>
+  <tr><th>Request choice</th><th>Business question</th></tr>
+  <tr><td><code>?status=no</code></td><td>Which bills have stored status <code>no</code>?</td></tr>
+  <tr><td><code>?min_amount=500&amp;max_amount=2000</code></td><td>Which bills are within this amount range?</td></tr>
+  <tr><td><code>?customer_id=5</code></td><td>Which bills belong to Registration ID 5?</td></tr>
+</table>
+<p class="small muted"><code>bill_status</code> is currently plain text; this project uses <code>yes</code> and <code>no</code> rather than formal model choices.</p>
+  <div class="num">16</div>
+</section>
+
+<section class="slide ">
+  <div class="tag">Combine rules</div>
+  <h2>Search OR across fields; filter AND by date</h2>
+  <div class="query">?search=rah&amp;born_from=1990-01-01&amp;born_to=1999-12-31</div>
+<p>The general text search may check <strong>name OR email</strong>. The date range then applies as an <strong>AND</strong> condition: a customer must match the text and be born in the range.</p>
+<div class="flow"><div class="step">Text finds 3</div><div class="arrow">→</div><div class="step orange">Date removes Rahat</div><div class="arrow">→</div><div class="step">2 remain</div></div>
+<p class="small muted">The sample result is Rahim Ahmed and Ayesha Rahman.</p>
+  <div class="num">17</div>
+</section>
+
+<section class="slide ">
+  <div class="tag">Class exercise</div>
+  <h2>Predict the result before revealing it</h2>
+  <p class="lead">Using the three sample customers, answer these:</p>
+<ol>
+  <li>Who matches a name that <strong>starts with</strong> “rah”?</li>
+  <li>Who matches a birth date from <strong>1990 through 1999</strong>?</li>
+  <li>Who satisfies <strong>both</strong> “name contains rah” and that date range?</li>
+</ol>
+<div class="callout">Answers: (1) Rahim and Rahat. (2) Rahim and Ayesha. (3) Rahim and Ayesha.</div>
+  <div class="num">18</div>
+</section>
+
+<section class="slide ">
+  <div class="tag">Result behavior</div>
+  <h2>What if the request has no useful result?</h2>
+  <div class="cards three">
+  <div class="card"><h3>No match</h3><p>Return an empty list. The interface can say “No customers found.”</p></div>
+  <div class="card orange"><h3>Bad value</h3><p>Explain an invalid date or amount. Do not silently ignore the filter.</p></div>
+  <div class="card yellow"><h3>Blank search</h3><p>Choose a consistent rule: show all permitted records or show none.</p></div>
+</div>
+<p>These decisions are part of the API contract. Students should know the expected response before writing the queryset code.</p>
+  <div class="num">19</div>
+</section>
+
+<section class="slide ">
+  <div class="tag">Data protection</div>
+  <h2>Search must follow the API’s access rules</h2>
+  <p>The Registration API already requires a valid JWT access token. Adding a search parameter must not expose records to someone who could not use the list endpoint.</p>
+<p>We must allow only intended fields. <code>Registration.password</code> and <code>Bill.bill_code</code> are not search fields. The current serializer also returns the password field; that separate security issue needs correction before production use.</p>
+<div class="callout">A search result should make it easier to find a permitted record, not reveal a sensitive field.</div>
+  <div class="num">20</div>
+</section>
+
+<section class="slide ">
+  <div class="tag">Practical scale</div>
+  <h2>Many results, sorting, and the current cache</h2>
+  <p>If thousands of customers match “a”, returning all of them is difficult to use. A stable sort order and pagination give the client a predictable first page and a way to request more.</p>
+<p>The HTML customer page currently caches one <strong>unfiltered</strong> list under <code>customer_list</code>. Its search box needs a query-aware design when connected. The DRF Registration API does not automatically use that HTML-page cache.</p>
+<div class="callout">Search correctness comes first: each query must return its own matching records.</div>
+  <div class="num">21</div>
+</section>
+
+<section class="slide ">
+  <div class="tag">DRF toolbox</div>
+  <h2>Which tool fits each behavior?</h2>
+  <table>
+  <tr><th>Tool</th><th>Role in this project</th></tr>
+  <tr><td><code>SearchFilter</code></td><td>Built-in DRF text search through <code>?search=</code>.</td></tr>
+  <tr><td><code>get_queryset()</code></td><td>Custom rules for chosen query parameters.</td></tr>
+  <tr><td><code>DjangoFilterBackend</code></td><td>Structured filters; needs the separate <code>django-filter</code> package.</td></tr>
+  <tr><td><code>OrderingFilter</code></td><td>Sorts results after matching.</td></tr>
+</table>
+<p class="small muted"><code>django-filter</code> is not in this project's <code>requirements.txt</code> today. We will choose the simplest tool for the code lesson.</p>
+  <div class="num">22</div>
+</section>
+
+<section class="slide ">
+  <div class="tag">Takeaway</div>
+  <h2>The plan for the code class</h2>
+  <ol>
+  <li>Make <code>?search=</code> work on the existing Registration API.</li>
+  <li>Test partial name search and exact email filtering with known records.</li>
+  <li>Add selected date filters, then handle empty and invalid results.</li>
+  <li>Connect the customer-page input if we also want an HTML demonstration.</li>
+  <li>Later, build a Bill API before demonstrating Bill API filters.</li>
+</ol>
+<p class="lead">Today we define the behavior. Tomorrow we can trace each request through URL, ViewSet, queryset, serializer, and JSON response.</p>
+  <div class="num">23</div>
+</section>
+
+<section class="slide ">
+  <div class="tag">Teacher references</div>
+  <h2>Official documentation behind this lesson</h2>
+  <ul>
+  <li><a href="https://www.django-rest-framework.org/api-guide/filtering/">DRF: filtering, SearchFilter, OrderingFilter, and DjangoFilterBackend</a></li>
+  <li><a href="https://www.django-rest-framework.org/api-guide/requests/">DRF: request query parameters</a></li>
+</ul>
+<p class="lead">Lesson source: <code>slides/CLASS_6_SEARCH_DRAFT.md</code>. Example people and values are fictional; the model fields and current endpoint status come from this project.</p>
+  <div class="num">24</div>
+</section>
+</body>
+</html>

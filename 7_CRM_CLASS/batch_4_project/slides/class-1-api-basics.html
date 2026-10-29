@@ -1,0 +1,226 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Class 1 - API Basics</title>
+  <style>
+    @page { size: 13.333in 7.5in; margin: 0; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: #dce3e8; color: #172026; font-family: "Liberation Sans", Arial, sans-serif; }
+    .slide { position: relative; width: 13.333in; height: 7.5in; padding: .62in .75in; overflow: hidden; page-break-after: always; background: #f7f8f5; }
+    .slide:last-child { page-break-after: auto; }
+    .slide::before { content: ""; position: absolute; left: 0; top: 0; width: .16in; height: 100%; background: #e75b3b; }
+    .num { position: absolute; right: .45in; bottom: .28in; color: #66727a; font-size: 16px; }
+    .tag { color: #a63b24; font-size: 19px; font-weight: 700; text-transform: uppercase; }
+    h1 { margin: .15in 0 .2in; font-size: 46px; line-height: 1.12; }
+    h2 { margin: .1in 0 .35in; font-size: 34px; line-height: 1.15; }
+    h3 { margin: 0 0 .12in; font-size: 24px; }
+    p, li { font-size: 23px; line-height: 1.35; }
+    ul { margin: .12in 0; padding-left: .32in; }
+    li { margin: .12in 0; }
+    .lead { max-width: 10.5in; font-size: 28px; }
+    .accent { color: #b43c24; font-weight: 700; }
+    .muted { color: #5a6870; }
+    .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: .35in; }
+    .grid3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: .22in; }
+    .box { border: 2px solid #c7d0d5; border-top: 7px solid #147d83; padding: .24in; background: #fff; min-height: 1.45in; }
+    .box.orange { border-top-color: #e75b3b; }
+    .box.yellow { border-top-color: #e7b740; }
+    .flow { display: flex; align-items: center; justify-content: center; gap: .15in; margin-top: .42in; }
+    .step { min-width: 2.1in; padding: .25in .18in; background: #fff; border: 2px solid #147d83; text-align: center; font-size: 22px; font-weight: 700; }
+    .arrow { font-size: 34px; color: #e75b3b; }
+    code, pre { font-family: "DejaVu Sans Mono", monospace; }
+    pre { margin: .18in 0; padding: .22in; background: #172026; color: #eef4f2; font-size: 19px; line-height: 1.4; white-space: pre-wrap; }
+    table { width: 100%; border-collapse: collapse; background: #fff; }
+    th, td { padding: .14in .18in; border: 1px solid #bdc8cd; text-align: left; font-size: 20px; }
+    th { background: #147d83; color: #fff; }
+    .title { display: flex; flex-direction: column; justify-content: center; }
+    .title h1 { font-size: 56px; max-width: 9.7in; }
+    .title .band { position: absolute; right: 0; top: 0; width: 2.2in; height: 100%; background: #147d83; }
+    .title .band::after { content: "API"; position: absolute; top: 2.75in; left: .36in; color: #fff; font-size: 58px; font-weight: 700; transform: rotate(90deg); }
+    @media screen { .slide { margin: 22px auto; box-shadow: 0 6px 24px #0003; } }
+    @media print { body { background: transparent; } }
+  </style>
+</head>
+<body>
+  <section class="slide title">
+    <div class="tag">Class 1</div>
+    <h1>API Basics Before Django REST Framework</h1>
+    <p class="lead">Understand the purpose first. Code comes later.</p>
+    <div class="band"></div><div class="num">1</div>
+  </section>
+
+  <section class="slide">
+    <div class="tag">Starting Point</div>
+    <h2>What is Django for?</h2>
+    <p class="lead">Django mainly builds the <span class="accent">backend</span> of a web application.</p>
+    <div class="grid2">
+      <div class="box"><h3>It handles</h3><p>URLs, logic, users, and database work.</p></div>
+      <div class="box orange"><h3>It can also</h3><p>Create HTML pages using templates.</p></div>
+    </div>
+    <div class="num">2</div>
+  </section>
+
+  <section class="slide">
+    <div class="tag">Traditional Django</div>
+    <h2>Normal Django returns a ready HTML page</h2>
+    <div class="flow">
+      <div class="step">Browser</div><div class="arrow">&#8594;</div>
+      <div class="step">Django + Database</div><div class="arrow">&#8594;</div>
+      <div class="step">HTML page</div>
+    </div>
+    <p class="lead">The template decides how the database data looks to a human.</p>
+    <pre>/account/customer/  -> ready HTML page</pre>
+    <div class="num">3</div>
+  </section>
+
+  <section class="slide">
+    <div class="tag">API</div>
+    <h2>What is an API?</h2>
+    <p class="lead"><strong>Application Programming Interface</strong></p>
+    <p>An API is a way for one software system to talk to another software system.</p>
+    <div class="flow">
+      <div class="step">Website / Mobile App</div><div class="arrow">&#8596;</div>
+      <div class="step">API</div><div class="arrow">&#8596;</div>
+      <div class="step">Django + Database</div>
+    </div>
+    <div class="num">4</div>
+  </section>
+
+  <section class="slide">
+    <div class="tag">JSON</div>
+    <h2>API usually returns data, not page design</h2>
+    <div class="grid2">
+      <div>
+        <h3>HTML</h3>
+        <p>Ready page for a human.</p>
+      </div>
+      <div>
+        <h3>JSON</h3>
+        <p>Structured data for software.</p>
+        <pre>{
+  "id": 5,
+  "name": "Student"
+}</pre>
+      </div>
+    </div>
+    <div class="num">5</div>
+  </section>
+
+  <section class="slide">
+    <div class="tag">Main Purpose</div>
+    <h2>Why use an API?</h2>
+    <p class="lead">The main reason is <span class="accent">separation and reuse</span>, not security or speed.</p>
+    <div class="grid3">
+      <div class="box"><h3>Website</h3><p>Uses the JSON.</p></div>
+      <div class="box orange"><h3>Mobile app</h3><p>Uses the same JSON.</p></div>
+      <div class="box yellow"><h3>Other software</h3><p>Uses the same JSON.</p></div>
+    </div>
+    <p class="muted">Each client decides how to display the data.</p>
+    <div class="num">6</div>
+  </section>
+
+  <section class="slide">
+    <div class="tag">HTTP</div>
+    <h2>How do clients ask an API?</h2>
+    <p>They send an <strong>HTTP request</strong>. The method says what they want to do.</p>
+    <table>
+      <tr><th>Method</th><th>Meaning</th><th>CRUD</th></tr>
+      <tr><td>GET</td><td>Read data</td><td>Read</td></tr>
+      <tr><td>POST</td><td>Create data</td><td>Create</td></tr>
+      <tr><td>PUT / PATCH</td><td>Update data</td><td>Update</td></tr>
+      <tr><td>DELETE</td><td>Delete data</td><td>Delete</td></tr>
+    </table>
+    <div class="num">7</div>
+  </section>
+
+  <section class="slide">
+    <div class="tag">REST</div>
+    <h2>What is a REST API?</h2>
+    <p class="lead">A REST API uses URLs and HTTP methods in a clear, predictable way.</p>
+    <pre>GET    /registrations/     -> read all
+POST   /registrations/     -> create
+GET    /registrations/5/   -> read one
+PATCH  /registrations/5/   -> update part
+DELETE /registrations/5/   -> delete</pre>
+    <div class="num">8</div>
+  </section>
+
+  <section class="slide">
+    <div class="tag">Tools</div>
+    <h2>Django, DRF, and FastAPI</h2>
+    <table>
+      <tr><th>Tool</th><th>Simple meaning</th></tr>
+      <tr><td>Django</td><td>Full Python web framework; can return HTML.</td></tr>
+      <tr><td>DRF</td><td>Django package that makes REST APIs easier.</td></tr>
+      <tr><td>FastAPI</td><td>Separate Python framework focused on APIs.</td></tr>
+    </table>
+    <p class="lead">DRF and FastAPI both build APIs. We use DRF because this project is already Django.</p>
+    <div class="num">9</div>
+  </section>
+
+  <section class="slide">
+    <div class="tag">FastAPI Basics</div>
+    <h2>What is FastAPI?</h2>
+    <p class="lead">FastAPI is a Python framework mainly made for building APIs.</p>
+    <div class="flow">
+      <div class="step">HTTP request</div><div class="arrow">&#8594;</div>
+      <div class="step">FastAPI</div><div class="arrow">&#8594;</div>
+      <div class="step">Python logic</div><div class="arrow">&#8594;</div>
+      <div class="step">JSON response</div>
+    </div>
+    <p>It validates incoming data and can generate API documentation automatically.</p>
+    <div class="num">10</div>
+  </section>
+
+  <section class="slide">
+    <div class="tag">FastAPI Example</div>
+    <h2>A very small FastAPI endpoint</h2>
+    <pre>from fastapi import FastAPI
+
+app = FastAPI()
+
+@app.get("/hello")
+def hello():
+    return {"message": "Hello"}</pre>
+    <p><code>GET /hello</code> returns JSON: <code>{"message": "Hello"}</code></p>
+    <div class="num">11</div>
+  </section>
+
+  <section class="slide">
+    <div class="tag">FastAPI Features</div>
+    <h2>What does FastAPI give us?</h2>
+    <div class="grid3">
+      <div class="box"><h3>Routes</h3><p>Connect methods and URLs to Python functions.</p></div>
+      <div class="box orange"><h3>Validation</h3><p>Checks incoming request data.</p></div>
+      <div class="box yellow"><h3>API docs</h3><p>Provides an interactive <code>/docs</code> page.</p></div>
+    </div>
+    <p class="lead">FastAPI is the tool. REST is the API design style.</p>
+    <div class="num">12</div>
+  </section>
+
+  <section class="slide">
+    <div class="tag">Request</div>
+    <h2>Method + URL is one API instruction</h2>
+    <pre>GET /account/api/registrations/</pre>
+    <p>Meaning: “Give me all registrations.”</p>
+    <pre>curl -X GET http://127.0.0.1:8001/account/api/registrations/</pre>
+    <p><code>curl</code> sends the request. <code>-X GET</code> chooses the method.</p>
+    <div class="num">13</div>
+  </section>
+
+  <section class="slide">
+    <div class="tag">Finish Here</div>
+    <h2>Connect today’s lesson to our project</h2>
+    <div class="grid2">
+      <div class="box"><h3>FastAPI</h3><p>A separate Python framework for building APIs.</p></div>
+      <div class="box orange"><h3>DRF</h3><p>The API toolkit used in our existing Django CRM.</p></div>
+    </div>
+    <p class="lead">Both can build REST APIs that use HTTP methods and return JSON.</p>
+    <pre>http://127.0.0.1:8001/account/api/registrations/</pre>
+    <p class="muted">Next class: Serializer + ViewSet + Router in this project.</p>
+    <div class="num">14</div>
+  </section>
+</body>
+</html>
